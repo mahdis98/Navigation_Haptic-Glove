@@ -19,7 +19,7 @@ class ActivityFactory:
     def __init__(self, type: str) -> None:
         self.type = type
     
-    def new_activity(self, body_point_array: np.array, ui: str, funcs: dict[str,list[FunctionType]], path: str) -> Activity:
+    def new_activity(self, body_point_array: np.array, ui: str, funcs: dict[str,list[FunctionType]], path: str, metaphor: str = "pull", guidance_approach: str = "two-tactor") -> Activity:
         if self.type == "game":
             return Game(body_point_array, ui, funcs=funcs)
         elif self.type == "jumping_jacks":
@@ -37,7 +37,7 @@ class ActivityFactory:
         elif self.type == "shapes":
             return Shapes(body_point_array, ui, funcs=funcs, path=path)
         elif self.type == "vector_haptic":
-            return VectorHaptic(body_point_array, ui, funcs=funcs, path=path)
+            return VectorHaptic(body_point_array, ui, funcs=funcs, path=path, metaphor=metaphor, guidance_approach=guidance_approach)
         elif self.type == "record_data":
             return RecordData(body_point_array, ui, funcs=funcs, path=path)
         else:

@@ -11,13 +11,14 @@ class HapticGlove(FeedbackDevice):
     TIMEOUT = 10 # seconds
     MINIMUM_INTENSITY_MESSAGE = "/150/150/150/150"
 
-    def __init__(self, tcp_ip: str, tcp_port: int, direction: str = "pull") -> None:
+    def __init__(self, tcp_ip: str, tcp_port: int, metaphor: str = "pull", guidance_approach: str = "two-tactor") -> None:
         super().__init__()
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.settimeout(self.TIMEOUT)
         self.tcp_ip = tcp_ip
         self.tcp_port = tcp_port
-        self.direction = direction            
+        self.metaphor = metaphor
+        self.guidance_approach = guidance_approach
     
     def connect(self) -> None:
         self.socket.connect((self.tcp_ip, self.tcp_port))

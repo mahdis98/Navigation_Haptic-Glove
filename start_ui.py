@@ -25,7 +25,7 @@ class TwoDimensionGame():
 
     NUM_LANDMARKS = 33
 
-    def __init__(self, objects):
+    def __init__(self, objects, metaphor: str = "pull", guidance_approach: str = "two-tactor"):
 
         # Ensure correct arguments are passed
         # self.arg_parse()
@@ -34,9 +34,12 @@ class TwoDimensionGame():
 
         # Array of the 33 mapped points
         self.body_point_array = np.zeros((self.NUM_LANDMARKS, 4))
+        self.metaphor = metaphor
+        self.guidance_approach = guidance_approach
 
         # if not self.args.hide_demo:
         subprocess.Popen(['python', 'play_demo.py', 'vector_haptic'])
+
 
         # # Init loggers
         self.loggers: list[Logger] = []
@@ -111,7 +114,7 @@ class TwoDimensionGame():
         }
 
         af = ActivityFactory("vector_haptic")
-        self.activity = af.new_activity(self.body_point_array, "pygame", funcs, ".")
+        self.activity = af.new_activity(self.body_point_array, "pygame", funcs, ".", metaphor=self.metaphor, guidance_approach=self.guidance_approach)
 
         if self.activity == None:
             print(f"Cannot find activity: {self.type}")

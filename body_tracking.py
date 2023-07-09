@@ -194,8 +194,11 @@ if __name__ == "__main__":
   # Create ZED objects filled in the main loop
   objects = sl.Objects()
   image = sl.Mat()
-
-  td = TwoDimensionGame(objects)
+  metaphor = input("insert metaphor")
+  print(metaphor)
+  guidance_approach = input("insert guidance_approach")
+  print(guidance_approach)
+  td = TwoDimensionGame(objects, metaphor=metaphor, guidance_approach=guidance_approach)
   try:
     td.start()
   except KeyboardInterrupt:

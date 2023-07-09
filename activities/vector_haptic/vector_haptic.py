@@ -13,7 +13,7 @@ class VectorHaptic(Activity):
     MOTORS = np.array([np.array([0, 0, 1]), np.array([0, 0, -1]), np.array([0, -1, 0]),
                        np.array([0, 1, 0])])  # array of motor positions
 
-    def __init__(self, body_point_array, ui, **kwargs) -> None:
+    def __init__(self, body_point_array, ui, metaphor: str = "pull", guidance_approach: str = "two-tactor", **kwargs) -> None:
         super().__init__(body_point_array, ui, **kwargs)
 
         cf = ComponentFactory(self.ui)
@@ -42,7 +42,7 @@ class VectorHaptic(Activity):
         self.current_pos = np.array([0, 0, 0])  # Current Pos
         self.goal_position = np.array([0, 1, 1])  # Goal Pos
 
-        self.glove = HapticGlove("192.168.1.4", 8888)
+        self.glove = HapticGlove("192.168.1.4", 8888, metaphor=metaphor, guidance_approach=guidance_approach)
         self.glove.connect()
 
         self.auditory = ComputerSoundFeedback()

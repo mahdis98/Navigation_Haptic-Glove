@@ -90,13 +90,32 @@ class HapticGlove(FeedbackDevice):
         for i in range(0, len(motor_positions)):
             motor_distance[i] = self.find_distance(U, motor_positions[i], normalized=True)
             # two tactor vector
-            mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2), 1, .59, bounded=True)
+            if self.guidance_approach == "two_tactor":
+                if self.metaphor == "pull":
+                    mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2), 1, .59, bounded=True)
+                else:
+                    mapped[i] = self.map_to_range(motor_distance[i], 0.0, math.sqrt(2), .59, 1, bounded=True)
+            else:
+                if motor_distance[i] < min_distance:
+                    min_distance = motor_distance[i]
+                    min_distance_motor = i
+        print(motor_distance)
 
-            #worst axis first
+        if self.guidance_approach == "worst_axis":
+            if self.metaphor == "pull":
+                mapped[min_distance_motor] = 1
+            # push
+            else:
+                if min_distance_motor == 0 or min_distance_motor == 2:
+                    mapped[min_distance_motor + 1] = 1
+                else:
+                    mapped[min_distance_motor - 1] = 1
 
-        #     if motor_distance[i] < min_distance:
-        #         min_distance = motor_distance[i]
-        #         min_distance_motor = i
+        # if pull, then make mapped[min in worst axis] =1
+        # else, then make mapped[max in worst axis]=1
+
+
+
 
         # mapped[min_distance_motor] = 1
 

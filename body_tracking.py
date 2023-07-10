@@ -23,6 +23,7 @@
    modelised skeleton in an OpenGL window
 """
 import math
+import random
 import time
 
 import cv2
@@ -207,14 +208,14 @@ if __name__ == "__main__":
   counter = 1
 
   vectors = ['X', 'A', 'B', 'C', 'D', 'E']
-  initialized_vectors = 0
-  vector_dict = {'A': (-0.38, .23, -1.09), 'B': (-.58, .1, -1.05), 'C': (-.50, -.44, -1.25),
+  initialized_vectors = 4
+  vector_dict = {'A': (-0.1, -.1, -1.09), 'B': (-.30, -0.33, -1.05), 'C': (-.50, -.65, -1.25),
                  'D': (0.02, -.19, -1.42), 'E': (-.13, .11, -1.4), 'F': (.35, -.21, -1.0)}
 
   with open(filename[:-4] + ".txt", 'w') as file:
     interval_time = time.time()
     while viewer.is_available():
-      if not initialized_vectors > 5:
+      if not initialized_vectors > 3:
         input("Press Enter for sampling location of %s" % vectors[initialized_vectors])  # wait for input of vector initialization
       # get unix_time of received image
       unix_time = time.time()
@@ -257,7 +258,7 @@ if __name__ == "__main__":
                                              object.keypoint[keypoint][1],
                                              object.keypoint[keypoint][2]))
 
-                if not initialized_vectors > 5:
+                if not initialized_vectors > 3:
                   vector_dict[vectors[initialized_vectors]] = object.keypoint[keypoint]
                   print(object.keypoint[keypoint])
                   initialized_vectors += 1
@@ -281,9 +282,10 @@ if __name__ == "__main__":
                 best_vector = (vect_magnitude, vector) if best_vector[0] > vect_magnitude else best_vector
                 if vect_magnitude < 0.1:
                   print("Target ", vector," reaached!")
-                  counter = (counter + 1) % len(vectors)
-                  if counter == 0:
-                    counter = 1
+                  # counter = (counter + 1) % len(vectors)
+                  # if counter == 0:
+                  #   counter = 1
+                  counter = random.randint(1, 3)
 
                 cv2.putText(image_left_ocv,
                             'CLOSEST VECTOR {}'.format(best_vector[1]),

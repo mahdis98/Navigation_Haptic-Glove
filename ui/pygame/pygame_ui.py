@@ -29,9 +29,9 @@ class PyGameUI(GUI):
         # Game Setup
         self.fpsClock = pygame.time.Clock()
         
-        self.window: pygame.Surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-        pygame.display.set_caption('WCRG Video Feedback System')
-        self.window.fill(self.BACKGROUND)
+        # self.window: pygame.Surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+        # pygame.display.set_caption('WCRG Video Feedback System')
+        # self.window.fill(self.BACKGROUND)
 
 
     def add_component(self, component: UIComponent) -> None:

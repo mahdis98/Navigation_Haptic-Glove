@@ -175,8 +175,8 @@ class TwoDimensionGame():
         # Handles the activity's logic at the end of a frame
         self.activity.handle_frame(surface=self.gui.window, goal=goal)
 
-        self.gui.update()
-        self.gui.clear()
+        # self.gui.update()
+        # self.gui.clear()
         self.persistant[TIMER].tick()
 
 

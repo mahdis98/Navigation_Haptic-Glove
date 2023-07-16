@@ -95,7 +95,7 @@ class HapticGlove(FeedbackDevice):
             if self.guidance_approach == "two_tactor":
                 if self.metaphor == "pull":
                     # mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2), 1, .59, bounded=True)
-                    mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, 1, 1, .59, bounded=True)
+                    mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2), 1, .59, bounded=True)
                 else:
                     mapped[i] = self.map_to_range(motor_distance[i], math.sqrt(2), 2.0, .59, 1, bounded=True)
             else:

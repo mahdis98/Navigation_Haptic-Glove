@@ -7,7 +7,9 @@ from feedback.feedback_device import FeedbackDevice
 
 class HapticGlove(FeedbackDevice):
 
-    MOTORS = np.array([np.array([0,0,1]), np.array([0,0,-1]), np.array([0,-1,0]), np.array([0,1,0])]) #array of motor positions
+    MOTORS = np.array([np.array([0,1]), np.array([0,-1]), np.array([-1,0]), np.array([1,0])]) #array of motor positions
+    # MOTORS = np.array([np.array([0,0,1]), np.array([0,0,-1]), np.array([0,-1,0]), np.array([0,1,0])]) #array of motor positions
+
     TIMEOUT = 10 # seconds
     MINIMUM_INTENSITY_MESSAGE = "/150/150/150/150"
 
@@ -92,14 +94,16 @@ class HapticGlove(FeedbackDevice):
             # two tactor vector
             if self.guidance_approach == "two_tactor":
                 if self.metaphor == "pull":
-                    mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2), 1, .59, bounded=True)
+                    # mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2), 1, .59, bounded=True)
+                    mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, 1, 1, .59, bounded=True)
                 else:
-                    mapped[i] = self.map_to_range(motor_distance[i], 0.0, math.sqrt(2), .59, 1, bounded=True)
+                    mapped[i] = self.map_to_range(motor_distance[i], math.sqrt(2), 2.0, .59, 1, bounded=True)
             else:
                 if motor_distance[i] < min_distance:
                     min_distance = motor_distance[i]
                     min_distance_motor = i
         print(motor_distance)
+        print(mapped)
 
         if self.guidance_approach == "worst_axis":
             if self.metaphor == "pull":
@@ -119,7 +123,8 @@ class HapticGlove(FeedbackDevice):
 
         # mapped[min_distance_motor] = 1
 
-        
+        if goal_pos[0] > 1000:
+            mapped = [1, 1, 1, 1]
 
         #print(mapped)
 

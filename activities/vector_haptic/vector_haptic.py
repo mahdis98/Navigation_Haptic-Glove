@@ -78,11 +78,11 @@ class VectorHaptic(Activity):
             goal = kwargs['goal']
 
         self.index += 1
-        self.current_pos = np.array([0, self.persist[SKELETON].skeleton_array[4][0],
-                                     self.persist[SKELETON].skeleton_array[4][1]])  # Current Pos
+        self.current_pos = np.array([self.persist[SKELETON].skeleton_array[KEY_POINT][0],
+                                     self.persist[SKELETON].skeleton_array[KEY_POINT][1]])  # Current Pos
         # print(self.persist[SKELETON].skeleton_array[4])
         # self.goal_position = np.array([0, self.stages[0]["target_1"].x_pos, self.stages[0]["target_1"].y_pos])
-        self.goal_position = np.array([0, goal[0]*PIXEL_SCALE+PIXEL_X_OFFSET, goal[1]*PIXEL_SCALE+PIXEL_Y_OFFSET])
+        self.goal_position = np.array([goal[0]*PIXEL_SCALE+PIXEL_X_OFFSET, goal[1]*PIXEL_SCALE+PIXEL_X_OFFSET])
 
         if self.index > 300000:
             print("stop")

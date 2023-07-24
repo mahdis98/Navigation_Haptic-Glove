@@ -136,7 +136,7 @@ class TwoDimensionGame():
         # Call change activity initially to render components
         self.activity.change_stage()
 
-    def process(self, goal=[0,0]):
+    def process(self, goal=None):
         """
         Infinitely loads skeletons from the queue until the program is 
         exited (esc). Updates the skeleton, handles any kind of activity 
@@ -154,6 +154,8 @@ class TwoDimensionGame():
         #         body = data["data"]
 
         # if body is not None:
+        if goal is None:
+            goal = []
         try:
             # self.body_point_array = np.array(json.loads(body))
             self.body_point_array = np.array(self.objects.object_list[0].keypoint)
@@ -166,7 +168,7 @@ class TwoDimensionGame():
             scaled_array = np.array(self.body_point_array)
             scaled_array[:,0] = scaled_array[:,0]*PIXEL_SCALE+PIXEL_X_OFFSET
             scaled_array[:,1] = scaled_array[:,1]*PIXEL_SCALE+PIXEL_Y_OFFSET
-            scaled_array[:,2] = scaled_array[:,2]*PIXEL_SCALE+PIXEL_Z_OFFSET
+            # scaled_array[:,2] = scaled_array[:,2]*PIXEL_SCALE+PIXEL_Z_OFFSET
             self.persistant[SKELETON].set_pos(scaled_array)
             # print("scaled body ", scaled_array)
             # log data

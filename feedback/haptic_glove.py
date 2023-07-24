@@ -102,8 +102,8 @@ class HapticGlove(FeedbackDevice):
                 if motor_distance[i] < min_distance:
                     min_distance = motor_distance[i]
                     min_distance_motor = i
-        print(motor_distance)
-        print(mapped)
+        # print(motor_distance)
+        # print(mapped)
 
         if self.guidance_approach == "worst_axis":
             if self.metaphor == "pull":

@@ -205,18 +205,24 @@ if __name__ == "__main__":
   except KeyboardInterrupt:
     print('Interrupted')
 
-  counter = 1
-
-  vectors = ['X', 'A', 'B', 'C', 'D', 'E']
-  initialized_vectors = 4
+  vectors = ['X', 'A', 'B', 'C']
+  center = []
+  radius = 0
+  theta = 0
+  random_target = []
+  initialized_vectors = 0
+  shoulder_dict = {}
   vector_dict = {'A': (-0.1, .1, -1.09), 'B': (-.40, -0.23, -1.05), 'C': (-.20, -.55, -1.25),
                  'D': (0.02, -.19, -1.42), 'E': (-.13, .11, -1.4), 'F': (.35, -.21, -1.0)}
 
   with open(filename[:-4] + ".txt", 'w') as file:
     interval_time = time.time()
     while viewer.is_available():
-      if not initialized_vectors > 3:
-        input("Press Enter for sampling location of %s" % vectors[initialized_vectors])  # wait for input of vector initialization
+
+      if initialized_vectors < 4:
+        input("Press Enter for sampling location of %s" % vectors[
+          initialized_vectors])  # wait for input of vector initialization
+
       # get unix_time of received image
       unix_time = time.time()
 
@@ -242,7 +248,9 @@ if __name__ == "__main__":
                             obj_param.body_format)
         cv2.rectangle(image_left_ocv, (0, 0), (700, 25), (255, 255, 255), -1)
 
-        td.process(goal=vector_dict[vectors[counter]])
+        # Passing the targets to the glove
+        if initialized_vectors >= 4:
+          td.process(goal=random_target)
 
         if objects.is_new:
           # Count the number of objects detected
@@ -258,46 +266,64 @@ if __name__ == "__main__":
                                              object.keypoint[keypoint][1],
                                              object.keypoint[keypoint][2]))
 
-                if not initialized_vectors > 3:
-                  vector_dict[vectors[initialized_vectors]] = object.keypoint[keypoint]
+                #setting target locations
+                if initialized_vectors < 4:
+                  vector_dict[vectors[initialized_vectors]] = np.array(object.keypoint[keypoint][0:2])
+                  shoulder_dict[vectors[initialized_vectors]] = np.array(object.keypoint[12][0:2])
+                  if initialized_vectors == 3:
+                    # center = np.array([(shoulder_dict['A'][0] + shoulder_dict['B'][0]) / 2, (shoulder_dict['A'][1] + shoulder_dict['B'][1]) / 2])
+                    center = (shoulder_dict['A'] + shoulder_dict['B']) / 2
+                    distance_top = np.linalg.norm(vector_dict['A'] - center)
+                    distance_right = np.linalg.norm(vector_dict['B'] - center)
+                    radius = min(distance_top, distance_right)
+                    theta = random.random() * 0.75 * math.pi
+                    random_target = np.array([-radius * math.sin(theta), radius * math.cos(theta)]) + center
+                    print("radius: ", radius)
+                    print("center: ", center)
+                    print("theta: ", theta * 180 / math.pi)
+                    print("random target: ", random_target)
                   print(object.keypoint[keypoint])
                   initialized_vectors += 1
                   break
 
                 # Find vector closest to for keypoint from list
-                best_vector = (math.inf, vectors[counter])
+                #best_vector = (math.inf, random_target)
                 # for vector in vectors:
-                vector = vectors[counter]
+                # vector = random_target
                 vx, vy, vz = object.keypoint[keypoint]
-                ax, ay, az = vector_dict[vector]
+                ax, ay = random_target
 
                 # 3D distance
-                vect_diff = (vx-ax,vy-ay,vz-az)
+                vect_diff = (vx-ax,vy-ay)
                 vect_magnitude = math.sqrt(vect_diff[0]**2 + vect_diff[1]**2)
-                print(vectors[counter], vector_dict[vectors[counter]], object.keypoint[keypoint], vect_magnitude)
+                # print(random_target, object.keypoint[keypoint], vect_magnitude)
 
 
 
                 #updating best vector
-                best_vector = (vect_magnitude, vector) if best_vector[0] > vect_magnitude else best_vector
-                if vect_magnitude < 0.1:
-                  print("Target ", vector," reaached!")
-                  td.process(goal=[1000, 0, 0])
+                # best_vector = (vect_magnitude, vector) if best_vector[0] > vect_magnitude else best_vector
+                if initialized_vectors >= 4 and vect_magnitude < 0.1:
+                  print("Target ", random_target, " reaached!")
+                  td.process(goal=[1000, 0])
                   time.sleep(3)
-                  # counter = (counter + 1) % len(vectors)
-                  # if counter == 0:
-                  #   counter = 1
-                  counter = random.randint(1, 3)
-                  td.process(goal=vector_dict[vectors[counter]])
 
-                cv2.putText(image_left_ocv,
-                            'CLOSEST VECTOR {}'.format(best_vector[1]),
-                            (450, 25),
-                            cv2.FONT_HERSHEY_PLAIN,
-                            1.5,
-                            (0, 0, 0),
-                            2,
-                            3)
+                  theta1 = random.random() * 0.75 * math.pi
+                  while (abs(theta1 - theta) < math.pi * 0.25):
+                    theta1 = random.random() * 0.75 * math.pi
+                  theta = theta1
+                  random_target = np.array([-radius * math.sin(theta), radius * math.cos(theta)]) + center
+                  print("theta: ", theta * 180 / math.pi)
+                  print("random target: ", random_target)
+                  td.process(goal=random_target)
+
+                # cv2.putText(image_left_ocv,
+                #             'CLOSEST VECTOR {}'.format(best_vector[1]),
+                #             (450, 25),
+                #             cv2.FONT_HERSHEY_PLAIN,
+                #             1.5,
+                #             (0, 0, 0),
+                #             2,
+                #             3)
 
                 if args.keypoints:
                   # Calculation of point coordinate

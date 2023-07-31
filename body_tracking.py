@@ -205,23 +205,31 @@ if __name__ == "__main__":
   except KeyboardInterrupt:
     print('Interrupted')
 
-  vectors = ['X', 'A', 'B', 'C']
+  vectors = ['X', 'A', 'B', 'C', 'D']
   center = []
   radius = 0
   theta = 0
   random_target = []
+  #counter of target setting
   initialized_vectors = 0
+  #counter of target setting for 5 s
+  sec_counter = 0
+  stop_time = time.time()
+  check_store = False
   shoulder_dict = {}
-  vector_dict = {'A': (-0.1, .1, -1.09), 'B': (-.40, -0.23, -1.05), 'C': (-.20, -.55, -1.25),
-                 'D': (0.02, -.19, -1.42), 'E': (-.13, .11, -1.4), 'F': (.35, -.21, -1.0)}
+  vector_dict = {'A': (0, 0), 'B':  (0, 0), 'C':  (0, 0),
+                 'D':  (0, 0), 'X':  (0, 0)}
 
   with open(filename[:-4] + ".txt", 'w') as file:
     interval_time = time.time()
     while viewer.is_available():
 
-      if initialized_vectors < 4:
-        input("Press Enter for sampling location of %s" % vectors[
-          initialized_vectors])  # wait for input of vector initialization
+      if initialized_vectors < 5:
+        if sec_counter == 0 and not check_store:
+          input("Press Enter for sampling location of %s" % vectors[
+            initialized_vectors])  # wait for input of vector initialization
+          stop_time = time.time()
+          check_store = True
 
       # get unix_time of received image
       unix_time = time.time()
@@ -249,8 +257,20 @@ if __name__ == "__main__":
         cv2.rectangle(image_left_ocv, (0, 0), (700, 25), (255, 255, 255), -1)
 
         # Passing the targets to the glove
-        if initialized_vectors >= 4:
-          td.process(goal=random_target)
+        if initialized_vectors >= 5:
+          if len(objects.object_list) > 0:
+            right_elbow = objects.object_list[0].keypoint[13]
+            right_hand = objects.object_list[0].keypoint[15]
+            if right_hand[1] == right_elbow[1]:
+              alpha = math.pi/2
+            else:
+              alpha = math.atan((right_hand[0] - right_elbow[0]) / (right_hand[1] - right_elbow[1]))
+              if alpha <= 0:
+                alpha = -alpha
+              else:
+                alpha = math.pi - alpha
+            # print("alpha: ", alpha * 180 / math.pi)
+            td.process(goal=random_target, alpha=alpha)
 
         if objects.is_new:
           # Count the number of objects detected
@@ -267,14 +287,31 @@ if __name__ == "__main__":
                                              object.keypoint[keypoint][2]))
 
                 #setting target locations
-                if initialized_vectors < 4:
-                  vector_dict[vectors[initialized_vectors]] = np.array(object.keypoint[keypoint][0:2])
-                  shoulder_dict[vectors[initialized_vectors]] = np.array(object.keypoint[12][0:2])
-                  if initialized_vectors == 3:
+                if initialized_vectors < 5:
+                  if sec_counter < 10 and time.time() - stop_time > 0.5:
+                    vector_dict[vectors[initialized_vectors]] += np.array(object.keypoint[keypoint][0:2])
+                    # time.sleep(1)
+                    stop_time = time.time()
+                    sec_counter += 1
+                    print(object.keypoint[keypoint])
+                  elif sec_counter == 10:
+                    vector_dict[vectors[initialized_vectors]] = vector_dict[vectors[initialized_vectors]] / 10
+                    sec_counter = 0
+                    initialized_vectors += 1
+                    check_store = False
+
+                  #setting it to the average value of those 5 seconds
+
+
+                  # shoulder_dict[vectors[initialized_vectors]] = np.array(object.keypoint[12][0:2])
+                  if initialized_vectors == 5:
                     # center = np.array([(shoulder_dict['A'][0] + shoulder_dict['B'][0]) / 2, (shoulder_dict['A'][1] + shoulder_dict['B'][1]) / 2])
-                    center = (shoulder_dict['A'] + shoulder_dict['B']) / 2
+                    # center = (shoulder_dict['A'] + shoulder_dict['B']) / 2
+                    center = vector_dict['D']
                     distance_top = np.linalg.norm(vector_dict['A'] - center)
+                    print("distance top: ", distance_top)
                     distance_right = np.linalg.norm(vector_dict['B'] - center)
+                    print("distance right: ", distance_right)
                     radius = min(distance_top, distance_right)
                     theta = random.random() * 0.75 * math.pi
                     random_target = np.array([-radius * math.sin(theta), radius * math.cos(theta)]) + center
@@ -282,8 +319,8 @@ if __name__ == "__main__":
                     print("center: ", center)
                     print("theta: ", theta * 180 / math.pi)
                     print("random target: ", random_target)
-                  print(object.keypoint[keypoint])
-                  initialized_vectors += 1
+
+
                   break
 
                 # Find vector closest to for keypoint from list
@@ -302,10 +339,12 @@ if __name__ == "__main__":
 
                 #updating best vector
                 # best_vector = (vect_magnitude, vector) if best_vector[0] > vect_magnitude else best_vector
-                if initialized_vectors >= 4 and vect_magnitude < 0.1:
+                if initialized_vectors >= 4 and vect_magnitude < 0.05:
                   print("Target ", random_target, " reaached!")
                   td.process(goal=[1000, 0])
-                  time.sleep(3)
+                  time.sleep(1)
+                  td.process(turn_off=True)
+                  input("For the next target, press enter")
 
                   theta1 = random.random() * 0.75 * math.pi
                   while (abs(theta1 - theta) < math.pi * 0.25):
@@ -314,7 +353,7 @@ if __name__ == "__main__":
                   random_target = np.array([-radius * math.sin(theta), radius * math.cos(theta)]) + center
                   print("theta: ", theta * 180 / math.pi)
                   print("random target: ", random_target)
-                  td.process(goal=random_target)
+
 
                 # cv2.putText(image_left_ocv,
                 #             'CLOSEST VECTOR {}'.format(best_vector[1]),

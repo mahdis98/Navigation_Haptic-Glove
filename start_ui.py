@@ -136,7 +136,7 @@ class TwoDimensionGame():
         # Call change activity initially to render components
         self.activity.change_stage()
 
-    def process(self, goal=None):
+    def process(self, goal=None, turn_off = False, alpha=0):
         """
         Infinitely loads skeletons from the queue until the program is 
         exited (esc). Updates the skeleton, handles any kind of activity 
@@ -175,7 +175,7 @@ class TwoDimensionGame():
             self.log_data()
 
         # Handles the activity's logic at the end of a frame
-        self.activity.handle_frame(surface=self.gui.window, goal=goal)
+        self.activity.handle_frame(surface=self.gui.window, goal=goal, turn_off=turn_off, alpha=alpha)
 
         # self.gui.update()
         # self.gui.clear()

@@ -74,10 +74,24 @@ class VectorHaptic(Activity):
         # print(self.persist[SKELETON].skeleton_array)
 
         goal = ()
+
+        if "alpha" in kwargs:
+            alpha = kwargs['alpha']
+        else:
+            alpha = 0
+
         if "goal" in kwargs:
             goal = kwargs['goal']
+        if "turn_off" in kwargs:
+            turn_off = kwargs ['turn_off']
+        else:
+            turn_off = False
 
-        if len(goal) > 0:
+        if turn_off:
+            print("stop")
+            self.glove.stop_feedback()
+
+        elif len(goal) > 0:
             self.index += 1
             self.current_pos = np.array([self.persist[SKELETON].skeleton_array[KEY_POINT][0],
                                          self.persist[SKELETON].skeleton_array[KEY_POINT][1]])  # Current Pos
@@ -89,8 +103,10 @@ class VectorHaptic(Activity):
                 print("stop")
                 self.glove.stop_feedback()
             else:
-                self.glove.send_pull_feedback(self.current_pos, self.goal_position)
+                self.glove.send_pull_feedback(self.current_pos, self.goal_position, alpha=alpha)
 
             self.change_stage()
+
+
 
 

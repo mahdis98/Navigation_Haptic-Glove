@@ -42,9 +42,10 @@ class VectorHaptic(Activity):
         self.current_pos = np.array([0, 0, 0])  # Current Pos
         self.goal_position = np.array([0, 1, 1])  # Goal Pos
 
+        print("Before connection")
         self.glove = HapticGlove("192.168.1.4", 8888, metaphor=metaphor, guidance_approach=guidance_approach)
         self.glove.connect()
-
+        print("Glove connected!")
         self.auditory = ComputerSoundFeedback()
 
     def time_expire_func(self) -> None:

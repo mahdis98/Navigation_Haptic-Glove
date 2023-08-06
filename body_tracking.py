@@ -259,12 +259,13 @@ if __name__ == "__main__":
         # Passing the targets to the glove
         if initialized_vectors >= 5:
           if len(objects.object_list) > 0:
-            right_elbow = objects.object_list[0].keypoint[13]
+            #right_elbow = objects.object_list[0].keypoint[13]
+            right_wrist = objects.object_list[0].keypoint[14]
             right_hand = objects.object_list[0].keypoint[15]
-            if right_hand[1] == right_elbow[1]:
+            if right_hand[1] == right_wrist[1]:
               alpha = math.pi/2
             else:
-              alpha = math.atan((right_hand[0] - right_elbow[0]) / (right_hand[1] - right_elbow[1]))
+              alpha = math.atan((right_hand[0] - right_wrist[0]) / (right_hand[1] - right_wrist[1]))
               if alpha <= 0:
                 alpha = -alpha
               else:

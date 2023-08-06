@@ -35,7 +35,8 @@ class HapticGlove(FeedbackDevice):
 
     def send_pull_feedback(self, current_pt: np.array, goal_pt: np.array, alpha=0):
         self.MOTORS = np.array(
-            [np.array([math.sin(alpha), math.cos(alpha)]), np.array([-math.sin(alpha), -math.cos(alpha)]), np.array([-math.cos(alpha), math.sin(alpha)]), np.array([math.cos(alpha), -math.sin(alpha)])])  # array of motor positions
+            [np.array([-math.sin(alpha), math.cos(alpha)]), np.array([math.sin(alpha), -math.cos(alpha)]), np.array([-math.cos(alpha), -math.sin(alpha)]), np.array([math.cos(alpha), math.sin(alpha)])])  # array of motor positions
+        # print(self.MOTORS)
         intensity = self.find_intensity_array(current_pt, goal_pt, self.MOTORS)
         message = self.make_message(intensity)
 

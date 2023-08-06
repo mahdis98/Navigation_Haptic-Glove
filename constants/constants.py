@@ -41,4 +41,4 @@ WINDOW_HEIGHT: int = 700
 
 QUEUE_NAME: str = "skeleton_queue"
 
-KEY_POINT = 16
+KEY_POINT = 15

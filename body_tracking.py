@@ -22,13 +22,17 @@
    This sample shows how to detect a human objects and draw their
    modelised skeleton in an OpenGL window
 """
+import datetime
 import math
+import os
 import random
 import time
 
 import cv2
 import sys
 import pyzed.sl as sl
+from matplotlib import pyplot as plt
+
 import ogl_viewer.viewer as gl
 import cv_viewer.tracking_viewer as cv_viewer
 import numpy as np
@@ -195,6 +199,7 @@ if __name__ == "__main__":
   # Create ZED objects filled in the main loop
   objects = sl.Objects()
   image = sl.Mat()
+  username = input("insert username")
   metaphor = input("insert metaphor")
   print(metaphor)
   guidance_approach = input("insert guidance_approach")
@@ -219,6 +224,10 @@ if __name__ == "__main__":
   shoulder_dict = {}
   vector_dict = {'A': (0, 0), 'B':  (0, 0), 'C':  (0, 0),
                  'D':  (0, 0), 'X':  (0, 0)}
+  try:
+    os.mkdir("figures/" + username)
+  except OSError as error:
+    pass
 
   with open(filename[:-4] + ".txt", 'w') as file:
     interval_time = time.time()
@@ -272,6 +281,7 @@ if __name__ == "__main__":
                 alpha = math.pi - alpha
             # print("alpha: ", alpha * 180 / math.pi)
             td.process(goal=random_target, alpha=alpha)
+            plt.scatter(x=[objects.object_list[0].keypoint[15][0]], y=[objects.object_list[0].keypoint[15][1]], color='b')
 
         if objects.is_new:
           # Count the number of objects detected
@@ -320,6 +330,7 @@ if __name__ == "__main__":
                     print("center: ", center)
                     print("theta: ", theta * 180 / math.pi)
                     print("random target: ", random_target)
+                    plt.Circle(random_target, 2, color='r')
 
 
                   break
@@ -342,6 +353,18 @@ if __name__ == "__main__":
                 # best_vector = (vect_magnitude, vector) if best_vector[0] > vect_magnitude else best_vector
                 if initialized_vectors >= 4 and vect_magnitude < 0.05:
                   print("Target ", random_target, " reaached!")
+                  circ = plt.Circle(random_target, 0.05, color='r', fill=False)
+                  plt.gca().add_artist(circ)
+                  plt.title(username + " " + guidance_approach + " " + metaphor)
+                  plt.xlim(left=center[0] - 2 * radius, right=center[0] + 2 * radius)
+                  plt.ylim(bottom=center[1] - 2 * radius, top=center[1] + 2 * radius)
+
+                  plt.savefig("figures/" + username + "/" + guidance_approach + "_" + metaphor + "_" +
+                              datetime.datetime.now().strftime("%m") + "-" + datetime.datetime.now().strftime("%d") +
+                              "-" + datetime.datetime.now().strftime("%y") + "_" + datetime.datetime.now().strftime("%H") +
+                              "-" + datetime.datetime.now().strftime("%M") + "-" + datetime.datetime.now().strftime("%S")
+                              + ".png")
+                  plt.clf()
                   td.process(goal=[1000, 0])
                   time.sleep(1)
                   td.process(turn_off=True)
@@ -354,6 +377,7 @@ if __name__ == "__main__":
                   random_target = np.array([-radius * math.sin(theta), radius * math.cos(theta)]) + center
                   print("theta: ", theta * 180 / math.pi)
                   print("random target: ", random_target)
+                  plt.Circle(random_target, 2, color='r')
 
 
                 # cv2.putText(image_left_ocv,

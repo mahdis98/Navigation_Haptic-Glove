@@ -25,7 +25,7 @@ class TwoDimensionGame():
 
     NUM_LANDMARKS = 33
 
-    def __init__(self, objects, metaphor: str = "pull", guidance_approach: str = "two-tactor"):
+    def __init__(self, objects, metaphor: str = "pull", guidance_approach: str = "two-tactor", intensity: str = "linear", layout: str = "vertical"):
 
         # Ensure correct arguments are passed
         # self.arg_parse()
@@ -36,6 +36,8 @@ class TwoDimensionGame():
         self.body_point_array = np.zeros((self.NUM_LANDMARKS, 4))
         self.metaphor = metaphor
         self.guidance_approach = guidance_approach
+        self.intensity = intensity
+        self.layout = layout
 
         # if not self.args.hide_demo:
         subprocess.Popen(['python', 'play_demo.py', 'vector_haptic'])
@@ -114,7 +116,7 @@ class TwoDimensionGame():
         }
 
         af = ActivityFactory("vector_haptic")
-        self.activity = af.new_activity(self.body_point_array, "pygame", funcs, ".", metaphor=self.metaphor, guidance_approach=self.guidance_approach)
+        self.activity = af.new_activity(self.body_point_array, "pygame", funcs, ".", metaphor=self.metaphor, guidance_approach=self.guidance_approach, intensity=self.intensity, layout=self.layout)
 
         if self.activity == None:
             print(f"Cannot find activity: {self.type}")
@@ -136,7 +138,7 @@ class TwoDimensionGame():
         # Call change activity initially to render components
         self.activity.change_stage()
 
-    def process(self, goal=None, turn_off = False, alpha=0):
+    def process(self, goal=None, turn_off = False, alpha=0, radius=0):
         """
         Infinitely loads skeletons from the queue until the program is 
         exited (esc). Updates the skeleton, handles any kind of activity 
@@ -175,7 +177,7 @@ class TwoDimensionGame():
             self.log_data()
 
         # Handles the activity's logic at the end of a frame
-        self.activity.handle_frame(surface=self.gui.window, goal=goal, turn_off=turn_off, alpha=alpha)
+        self.activity.handle_frame(surface=self.gui.window, goal=goal, turn_off=turn_off, alpha=alpha, radius=radius)
 
         # self.gui.update()
         # self.gui.clear()

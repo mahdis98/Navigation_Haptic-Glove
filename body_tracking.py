@@ -203,7 +203,12 @@ if __name__ == "__main__":
     print(metaphor)
     guidance_approach = input("insert guidance_approach")
     print(guidance_approach)
-    td = TwoDimensionGame(objects, metaphor=metaphor, guidance_approach=guidance_approach)
+    intensity_mode = input("insert intensity mode")
+    print(intensity_mode)
+    layout = input("insert the layout")
+    print(layout)
+
+    td = TwoDimensionGame(objects, metaphor=metaphor, guidance_approach=guidance_approach, intensity=intensity_mode, layout=layout)
     try:
         td.start()
     except KeyboardInterrupt:
@@ -288,7 +293,8 @@ if __name__ == "__main__":
                             else:
                                 alpha = math.pi - alpha
                         # print("alpha: ", alpha * 180 / math.pi)
-                        td.process(goal=random_target, alpha=alpha)
+                        calculated_radius = np.linalg.norm(np.array(random_target) - np.array(center))
+                        td.process(goal=random_target, alpha=alpha, radius=calculated_radius)
                         plt.scatter(x=[(objects.object_list[0].keypoint[15][0] - center[0]) / distance_right],
                                     y=[(objects.object_list[0].keypoint[15][1] - center[1]) / distance_top], color='b',
                                     s=5)

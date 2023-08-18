@@ -13,7 +13,7 @@ class VectorHaptic(Activity):
     MOTORS = np.array([np.array([0, 0, 1]), np.array([0, 0, -1]), np.array([0, -1, 0]),
                        np.array([0, 1, 0])])  # array of motor positions
 
-    def __init__(self, body_point_array, ui, metaphor: str = "pull", guidance_approach: str = "two-tactor", **kwargs) -> None:
+    def __init__(self, body_point_array, ui, metaphor: str = "pull", guidance_approach: str = "two-tactor", intensity: str = "linear", layout: str = "vertical", **kwargs) -> None:
         super().__init__(body_point_array, ui, **kwargs)
 
         cf = ComponentFactory(self.ui)
@@ -43,7 +43,7 @@ class VectorHaptic(Activity):
         self.goal_position = np.array([0, 1, 1])  # Goal Pos
 
         print("Before connection")
-        self.glove = HapticGlove("192.168.1.4", 8888, metaphor=metaphor, guidance_approach=guidance_approach)
+        self.glove = HapticGlove("192.168.1.4", 8888, metaphor=metaphor, guidance_approach=guidance_approach, intensity=intensity, layout=layout)
         self.glove.connect()
         print("Glove connected!")
         self.auditory = ComputerSoundFeedback()
@@ -76,11 +76,14 @@ class VectorHaptic(Activity):
 
         goal = ()
 
+        if "radius" in kwargs:
+            radius = kwargs['radius']
+        else:
+            radius = 0
         if "alpha" in kwargs:
             alpha = kwargs['alpha']
         else:
             alpha = 0
-
         if "goal" in kwargs:
             goal = kwargs['goal']
         if "turn_off" in kwargs:
@@ -104,7 +107,7 @@ class VectorHaptic(Activity):
                 print("stop")
                 self.glove.stop_feedback()
             else:
-                self.glove.send_pull_feedback(self.current_pos, self.goal_position, alpha=alpha)
+                self.glove.send_pull_feedback(self.current_pos, self.goal_position, alpha=alpha, radius=radius)
 
             self.change_stage()
 

@@ -208,7 +208,8 @@ if __name__ == "__main__":
     layout = input("insert the layout")
     print(layout)
 
-    td = TwoDimensionGame(objects, metaphor=metaphor, guidance_approach=guidance_approach, intensity=intensity_mode, layout=layout)
+    td = TwoDimensionGame(objects, metaphor=metaphor, guidance_approach=guidance_approach, intensity=intensity_mode,
+                          layout=layout)
     try:
         td.start()
     except KeyboardInterrupt:
@@ -226,6 +227,8 @@ if __name__ == "__main__":
     stop_time = time.time()
     check_store = False
     target_timer = 0
+    points_x = []
+    points_y = []
     shoulder_dict = {}
     vector_dict = {'A': (0, 0), 'B': (0, 0), 'C': (0, 0),
                    'D': (0, 0), 'X': (0, 0)}
@@ -295,9 +298,11 @@ if __name__ == "__main__":
                         # print("alpha: ", alpha * 180 / math.pi)
                         calculated_radius = np.linalg.norm(np.array(random_target) - np.array(center))
                         td.process(goal=random_target, alpha=alpha, radius=calculated_radius)
-                        plt.scatter(x=[(objects.object_list[0].keypoint[15][0] - center[0]) / distance_right],
-                                    y=[(objects.object_list[0].keypoint[15][1] - center[1]) / distance_top], color='b',
-                                    s=5)
+                        # plt.scatter(x=[(objects.object_list[0].keypoint[15][0] - center[0]) / distance_right],
+                        #             y=[(objects.object_list[0].keypoint[15][1] - center[1]) / distance_top], color='b',
+                        #             s=5)
+                        points_x.append((objects.object_list[0].keypoint[15][0] - center[0]) / distance_right)
+                        points_y.append((objects.object_list[0].keypoint[15][1] - center[1]) / distance_top)
 
                 if objects.is_new:
                     # Count the number of objects detected
@@ -381,15 +386,16 @@ if __name__ == "__main__":
                                     file.write("----\n")
                                     file.write("----\n")
 
-                                    circ = plt.Rectangle(((random_target[0] - center[0]) / distance_right - 0.05,
-                                                          (random_target[1] - center[1]) / distance_top - 0.05), 0.1, 0.1,
-                                                         color='r', fill=True)
-                                    circ_center = plt.Circle((0, 0), 0.06, color='g', fill=True)
+                                    circ = plt.Circle(((random_target[0] - center[0]) / distance_right,
+                                                       (random_target[1] - center[1]) / distance_top), 0.04,
+                                                      color='r', fill=True, alpha=0.5)
+                                    circ_center = plt.Circle((0, 0), 0.04, color='k', fill=True)
                                     plt.gca().add_artist(circ)
                                     plt.gca().add_artist(circ_center)
                                     plt.title(username + " " + guidance_approach + " " + metaphor)
                                     plt.xlim(left=-1.5, right=1.5)
                                     plt.ylim(bottom=-1.5, top=1.5)
+                                    plt.plot(points_x, points_y, color='b')
 
                                     plt.savefig("figures/" + username + "/" + guidance_approach + "_" + metaphor + "_" +
                                                 datetime.datetime.now().strftime(
@@ -400,13 +406,15 @@ if __name__ == "__main__":
                                         "%M") + "-" + datetime.datetime.now().strftime("%S")
                                                 + ".png")
                                     plt.clf()
+                                    points_x = []
+                                    points_y = []
                                     td.process(goal=[1000, 0])
                                     time.sleep(1)
                                     td.process(turn_off=True)
                                     input("For the next target, press enter")
-
-                                    theta1 = random.random() * 0.75 * math.pi
-                                    while (abs(theta1 - theta) < math.pi * 0.25):
+                                    # from 0 to 150 degrees
+                                    theta1 = random.random() * 0.83 * math.pi
+                                    while (abs(theta1 - theta) < math.pi * 0.33):
                                         theta1 = random.random() * 0.75 * math.pi
                                     theta = theta1
                                     # random_target = np.array(

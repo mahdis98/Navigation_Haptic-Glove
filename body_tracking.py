@@ -45,6 +45,25 @@ usage = "usage: python3 body_track.py [(-r | --record) record_filename] [(-p | -
         "\tplayback_filename: SVO file name for playback. Must be .svo" \
         "\tkeypoints: keypoint values being recorded. By default not using this flag will record all points"
 
+def setting_setter(td_new, middle_input_new):
+    if middle_input_new <= 7:
+        td_new.metaphor = 'push'
+    else:
+        td_new.metaphor = 'pull'
+    if middle_input_new % 8 < 4:
+        td_new.guidance_approach = 'two_tactor'
+    else:
+        td_new.guidance_approach = 'worst_axis'
+    if middle_input_new % 4 < 2:
+        td_new.intensity = 'linear'
+    else:
+        td_new.intensity = 'zone'
+    if middle_input_new % 2 == 0:
+        td_new.layout = 'vertical'
+    else:
+        td_new.layout = 'horizontal'
+
+
 if __name__ == "__main__":
     filename = "output.txt"
     recording = False
@@ -199,17 +218,18 @@ if __name__ == "__main__":
     objects = sl.Objects()
     image = sl.Mat()
     username = input("insert username")
-    metaphor = input("insert metaphor")
-    print(metaphor)
-    guidance_approach = input("insert guidance_approach")
-    print(guidance_approach)
-    intensity_mode = input("insert intensity mode")
-    print(intensity_mode)
-    layout = input("insert the layout")
-    print(layout)
+    # metaphor = input("insert metaphor")
+    # print(metaphor)
+    # guidance_approach = input("insert guidance_approach")
+    # print(guidance_approach)
+    # intensity_mode = input("insert intensity mode")
+    # print(intensity_mode)
+    # layout = input("insert the layout")
+    # print(layout)
 
-    td = TwoDimensionGame(objects, metaphor=metaphor, guidance_approach=guidance_approach, intensity=intensity_mode,
-                          layout=layout)
+    td = TwoDimensionGame(objects)
+    first_input = input("Please enter the first entry:")
+    setting_setter(td, first_input)
     try:
         td.start()
     except KeyboardInterrupt:
@@ -381,7 +401,7 @@ if __name__ == "__main__":
                                 # updating best vector
                                 # best_vector = (vect_magnitude, vector) if best_vector[0] > vect_magnitude else best_vector
                                 if initialized_vectors >= 4 and vect_magnitude < 0.05:
-                                    print("Target ", random_target, " reaached!")
+                                    print("Target ", random_target, " reached!")
                                     file.write("Time to target: " + str(time.time() - target_timer) + " s\n")
                                     file.write("----\n")
                                     file.write("----\n")
@@ -392,12 +412,12 @@ if __name__ == "__main__":
                                     circ_center = plt.Circle((0, 0), 0.04, color='k', fill=True)
                                     plt.gca().add_artist(circ)
                                     plt.gca().add_artist(circ_center)
-                                    plt.title(username + " " + guidance_approach + " " + metaphor)
+                                    plt.title(username + "-" + td.guidance_approach + "-" + td.metaphor + "-" + td.intensity)
                                     plt.xlim(left=-1.5, right=1.5)
                                     plt.ylim(bottom=-1.5, top=1.5)
                                     plt.plot(points_x, points_y, color='b')
 
-                                    plt.savefig("figures/" + username + "/" + guidance_approach + "_" + metaphor + "_" +
+                                    plt.savefig("figures/" + username + "-" + td.guidance_approach + "-" + td.metaphor + "-" + td.intensity +
                                                 datetime.datetime.now().strftime(
                                                     "%m") + "-" + datetime.datetime.now().strftime("%d") +
                                                 "-" + datetime.datetime.now().strftime(
@@ -411,7 +431,12 @@ if __name__ == "__main__":
                                     td.process(goal=[1000, 0])
                                     time.sleep(1)
                                     td.process(turn_off=True)
-                                    input("For the next target, press enter")
+                                    middle_input = input("For the next target, press enter")
+                                    if middle_input == '':
+                                        pass
+                                    else:
+                                        setting_setter(td, middle_input)
+
                                     # from 0 to 150 degrees
                                     theta1 = random.random() * 0.83 * math.pi
                                     while (abs(theta1 - theta) < math.pi * 0.33):
@@ -424,6 +449,10 @@ if __name__ == "__main__":
                                     target_timer = time.time()
                                     print("theta: ", theta * 180 / math.pi)
                                     print("random target: ", random_target)
+                                    file.write("metaphor: " + str(td.metaphor) + "\n")
+                                    file.write("guidance_approach: " + str(td.guidance_approach) + "\n")
+                                    file.write("intensity: " + str(td.intensity) + "\n")
+                                    file.write("layout: " + str(td.layout) + "\n")
                                     file.write("Target location: " + str(random_target) + "\n")
                                     file.write("Theta: " + str(theta * 180 / math.pi) + "\n")
 

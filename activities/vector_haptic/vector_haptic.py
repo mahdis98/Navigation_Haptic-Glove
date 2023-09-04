@@ -13,7 +13,7 @@ class VectorHaptic(Activity):
     MOTORS = np.array([np.array([0, 0, 1]), np.array([0, 0, -1]), np.array([0, -1, 0]),
                        np.array([0, 1, 0])])  # array of motor positions
 
-    def __init__(self, body_point_array, ui, metaphor: str = "pull", guidance_approach: str = "two-tactor", intensity: str = "linear", layout: str = "vertical", **kwargs) -> None:
+    def __init__(self, body_point_array, ui, **kwargs) -> None:
         super().__init__(body_point_array, ui, **kwargs)
 
         cf = ComponentFactory(self.ui)
@@ -43,7 +43,7 @@ class VectorHaptic(Activity):
         self.goal_position = np.array([0, 1, 1])  # Goal Pos
 
         print("Before connection")
-        self.glove = HapticGlove("192.168.1.4", 8888, metaphor=metaphor, guidance_approach=guidance_approach, intensity=intensity, layout=layout)
+        self.glove = HapticGlove("192.168.1.4", 8888)
         self.glove.connect()
         print("Glove connected!")
         self.auditory = ComputerSoundFeedback()
@@ -69,7 +69,8 @@ class VectorHaptic(Activity):
         self.auditory.beep()
         self.index = 0
 
-    def handle_frame(self, **kwargs) -> None:
+    def handle_frame(self, metaphor: str = "pull", guidance_approach: str = "two-tactor", intensity: str = "linear",
+                     layout: str = "vertical", **kwargs) -> None:
         super().handle_frame(**kwargs)
 
         # print(self.persist[SKELETON].skeleton_array)
@@ -87,7 +88,7 @@ class VectorHaptic(Activity):
         if "goal" in kwargs:
             goal = kwargs['goal']
         if "turn_off" in kwargs:
-            turn_off = kwargs ['turn_off']
+            turn_off = kwargs['turn_off']
         else:
             turn_off = False
 
@@ -101,16 +102,15 @@ class VectorHaptic(Activity):
                                          self.persist[SKELETON].skeleton_array[KEY_POINT][1]])  # Current Pos
             # print(self.persist[SKELETON].skeleton_array[4])
             # self.goal_position = np.array([0, self.stages[0]["target_1"].x_pos, self.stages[0]["target_1"].y_pos])
-            self.goal_position = np.array([goal[0]*PIXEL_SCALE+PIXEL_X_OFFSET, goal[1]*PIXEL_SCALE+PIXEL_X_OFFSET])
+            self.goal_position = np.array(
+                [goal[0] * PIXEL_SCALE + PIXEL_X_OFFSET, goal[1] * PIXEL_SCALE + PIXEL_X_OFFSET])
 
             if self.index > 300000:
                 print("stop")
                 self.glove.stop_feedback()
             else:
-                self.glove.send_pull_feedback(self.current_pos, self.goal_position, alpha=alpha, radius=radius)
+                self.glove.send_pull_feedback(self.current_pos, self.goal_position, alpha=alpha, radius=radius,
+                                              metaphor=metaphor, guidance_approach=guidance_approach,
+                                              intensity=intensity, layout=layout)
 
             self.change_stage()
-
-
-
-

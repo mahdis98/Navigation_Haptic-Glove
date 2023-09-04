@@ -16,6 +16,7 @@ from ui.pygame.pygame_ui import PyGameUI
 from ui.pyqtgraph.pyqtgraph_ui import PyQtGraph
 from constants.constants import *
 
+
 class TwoDimensionGame():
     """
     Creates a 2-dimensional user interface displaying the results
@@ -25,7 +26,8 @@ class TwoDimensionGame():
 
     NUM_LANDMARKS = 33
 
-    def __init__(self, objects, metaphor: str = "pull", guidance_approach: str = "two-tactor", intensity: str = "linear", layout: str = "vertical"):
+    def __init__(self, objects, metaphor: str = "pull", guidance_approach: str = "two-tactor",
+                 intensity: str = "linear", layout: str = "vertical"):
 
         # Ensure correct arguments are passed
         # self.arg_parse()
@@ -41,7 +43,6 @@ class TwoDimensionGame():
 
         # if not self.args.hide_demo:
         subprocess.Popen(['python', 'play_demo.py', 'vector_haptic'])
-
 
         # # Init loggers
         self.loggers: list[Logger] = []
@@ -62,7 +63,7 @@ class TwoDimensionGame():
         #     r = redis.Redis(host='localhost', port=6379, db=0)
         #     self.channel = r.pubsub()
         #     self.channel.subscribe(QUEUE_NAME)
-        
+
     def start(self):
         """Initializes the game's user interface and starts processing data"""
         # Initialize graphs and labels for the user interface
@@ -79,11 +80,15 @@ class TwoDimensionGame():
         parser.add_argument("--record_points", action="store_true", help="Record point data")
         parser.add_argument("--record_zarr", action="store_true", help="Record zarr data")
         parser.add_argument("--record_hdf5", action="store_true", help="Record hdf5 data")
-        parser.add_argument("--activity", nargs="?", const="game", default="game", help="Activity to be recorded, default is game")
-        parser.add_argument("--file", nargs="?", const=".", default=".", help="Path to the file to be used as the activity")
+        parser.add_argument("--activity", nargs="?", const="game", default="game",
+                            help="Activity to be recorded, default is game")
+        parser.add_argument("--file", nargs="?", const=".", default=".",
+                            help="Path to the file to be used as the activity")
         parser.add_argument("--hide_demo", action="store_true", help="Set to hide demo video")
-        parser.add_argument("--gui", choices=["pygame", "pyqtgraph"], default="pygame", help="The user interface to use")
-        parser.add_argument("--queue", choices=["rabbitmq", "redis"], default="redis", help="The type of queue to use to accept skeleton data.")
+        parser.add_argument("--gui", choices=["pygame", "pyqtgraph"], default="pygame",
+                            help="The user interface to use")
+        parser.add_argument("--queue", choices=["rabbitmq", "redis"], default="redis",
+                            help="The type of queue to use to accept skeleton data.")
         self.args = parser.parse_args()
 
     def init_ui(self):
@@ -109,14 +114,16 @@ class TwoDimensionGame():
         very specific activity classes (as intended) but very general logging
         classes.'''
         funcs = {
-            START_LOGGING:    [logger.start_logging   for logger in self.loggers],
-            STOP_LOGGING:     [logger.stop_logging    for logger in self.loggers],
-            NEW_LOG:          [logger.new_log         for logger in self.loggers],
-            CLOSE:            [logger.close           for logger in self.loggers]
+            START_LOGGING: [logger.start_logging for logger in self.loggers],
+            STOP_LOGGING: [logger.stop_logging for logger in self.loggers],
+            NEW_LOG: [logger.new_log for logger in self.loggers],
+            CLOSE: [logger.close for logger in self.loggers]
         }
 
         af = ActivityFactory("vector_haptic")
-        self.activity = af.new_activity(self.body_point_array, "pygame", funcs, ".", metaphor=self.metaphor, guidance_approach=self.guidance_approach, intensity=self.intensity, layout=self.layout)
+        self.activity = af.new_activity(self.body_point_array, "pygame", funcs, ".", metaphor=self.metaphor,
+                                        guidance_approach=self.guidance_approach, intensity=self.intensity,
+                                        layout=self.layout)
 
         if self.activity == None:
             print(f"Cannot find activity: {self.type}")
@@ -138,7 +145,7 @@ class TwoDimensionGame():
         # Call change activity initially to render components
         self.activity.change_stage()
 
-    def process(self, goal=None, turn_off = False, alpha=0, radius=0):
+    def process(self, goal=None, turn_off=False, alpha=0, radius=0):
         """
         Infinitely loads skeletons from the queue until the program is 
         exited (esc). Updates the skeleton, handles any kind of activity 
@@ -168,8 +175,8 @@ class TwoDimensionGame():
         # If global coords were successfully found
         if self.body_point_array is not None:
             scaled_array = np.array(self.body_point_array)
-            scaled_array[:,0] = scaled_array[:,0]*PIXEL_SCALE+PIXEL_X_OFFSET
-            scaled_array[:,1] = scaled_array[:,1]*PIXEL_SCALE+PIXEL_Y_OFFSET
+            scaled_array[:, 0] = scaled_array[:, 0] * PIXEL_SCALE + PIXEL_X_OFFSET
+            scaled_array[:, 1] = scaled_array[:, 1] * PIXEL_SCALE + PIXEL_Y_OFFSET
             # scaled_array[:,2] = scaled_array[:,2]*PIXEL_SCALE+PIXEL_Z_OFFSET
             self.persistant[SKELETON].set_pos(scaled_array)
             # print("scaled body ", scaled_array)
@@ -177,17 +184,19 @@ class TwoDimensionGame():
             self.log_data()
 
         # Handles the activity's logic at the end of a frame
-        self.activity.handle_frame(surface=self.gui.window, goal=goal, turn_off=turn_off, alpha=alpha, radius=radius)
+        self.activity.handle_frame(surface=self.gui.window, goal=goal, turn_off=turn_off, alpha=alpha, radius=radius,
+                                   metaphor=self.metaphor,
+                                   guidance_approach=self.guidance_approach, intensity=self.intensity)
 
         # self.gui.update()
         # self.gui.clear()
         self.persistant[TIMER].tick()
 
-
     def log_data(self):
         """Calls the log method on any instantiated loggers"""
         for logger in self.loggers:
-            if isinstance(logger, CSVPointLogger) or isinstance(logger, ZarrPointLogger) or isinstance(logger, Hdf5PointLogger):
+            if isinstance(logger, CSVPointLogger) or isinstance(logger, ZarrPointLogger) or isinstance(logger,
+                                                                                                       Hdf5PointLogger):
                 logger.log(self.body_point_array)
             if isinstance(logger, VideoLogger):
                 logger.log(self.image)

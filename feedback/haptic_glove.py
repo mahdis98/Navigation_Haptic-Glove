@@ -36,12 +36,17 @@ class HapticGlove(FeedbackDevice):
         for _ in range(0, 10):
             self.socket.send(f'{message}\n'.encode('ascii'))
 
-    def send_pull_feedback(self, current_pt: np.array, goal_pt: np.array, alpha=0, radius=0):
+    def send_pull_feedback(self, current_pt: np.array, goal_pt: np.array, alpha=0, radius=0, metaphor: str = "pull",
+                           guidance_approach: str = "two-tactor",
+                           intensity: str = "linear", layout: str = "vertical"):
         self.MOTORS = np.array(
             [np.array([-math.sin(alpha), math.cos(alpha)]), np.array([math.sin(alpha), -math.cos(alpha)]),
              np.array([-math.cos(alpha), -math.sin(alpha)]),
              np.array([math.cos(alpha), math.sin(alpha)])])  # array of motor positions
         # print(self.MOTORS)
+        self.metaphor = metaphor
+        self.guidance_approach = guidance_approach
+        self.intensity = intensity
         intensity = self.find_intensity_array(current_pt, goal_pt, self.MOTORS, radius)
         message = self.make_message(intensity)
 
@@ -104,7 +109,8 @@ class HapticGlove(FeedbackDevice):
                     # mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2), 1, .59, bounded=True)
                     if self.intensity == "linear":
                         if D > radius:
-                            mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2), MIN_INTENSITY, .59,
+                            mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2), MIN_INTENSITY,
+                                                                  .59,
                                                                   bounded=True)
                         else:
                             mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2),
@@ -113,7 +119,8 @@ class HapticGlove(FeedbackDevice):
                     # zone intensity
                     else:
                         if D > .33 * radius:
-                            mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2), MIN_INTENSITY, .59,
+                            mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2), MIN_INTENSITY,
+                                                                  .59,
                                                                   bounded=True)
                         else:
                             mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2), 1, .59,

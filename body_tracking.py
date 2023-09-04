@@ -229,7 +229,7 @@ if __name__ == "__main__":
 
     td = TwoDimensionGame(objects)
     first_input = input("Please enter the first entry:")
-    setting_setter(td, first_input)
+    setting_setter(td, int(first_input))
     try:
         td.start()
     except KeyboardInterrupt:
@@ -260,7 +260,7 @@ if __name__ == "__main__":
         os.mkdir("Outputs/" + username)
     except OSError as error:
         pass
-    name_file = ("Outputs/" + username + "/" + guidance_approach + "_" + metaphor + "_" +
+    name_file = ("Outputs/" + username + "/" + username + "_" +
                  datetime.datetime.now().strftime("%m") + "-" + datetime.datetime.now().strftime("%d") +
                  "-" + datetime.datetime.now().strftime("%y") + "_" + datetime.datetime.now().strftime("%H") +
                  "-" + datetime.datetime.now().strftime("%M") + "-" + datetime.datetime.now().strftime("%S")
@@ -381,6 +381,10 @@ if __name__ == "__main__":
                                         file.write("Center: " + str(center) + "\n")
                                         print("theta: ", theta * 180 / math.pi)
                                         print("random target: ", random_target)
+                                        file.write("metaphor: " + str(td.metaphor) + "\n")
+                                        file.write("guidance_approach: " + str(td.guidance_approach) + "\n")
+                                        file.write("intensity: " + str(td.intensity) + "\n")
+                                        file.write("layout: " + str(td.layout) + "\n")
                                         file.write("Target location: " + str(random_target) + "\n")
                                         file.write("Theta: " + str(theta * 180 / math.pi) + "\n")
 
@@ -417,7 +421,7 @@ if __name__ == "__main__":
                                     plt.ylim(bottom=-1.5, top=1.5)
                                     plt.plot(points_x, points_y, color='b')
 
-                                    plt.savefig("figures/" + username + "-" + td.guidance_approach + "-" + td.metaphor + "-" + td.intensity +
+                                    plt.savefig("figures/" + username + "/" + td.guidance_approach + "-" + td.metaphor + "-" + td.intensity +
                                                 datetime.datetime.now().strftime(
                                                     "%m") + "-" + datetime.datetime.now().strftime("%d") +
                                                 "-" + datetime.datetime.now().strftime(
@@ -435,7 +439,7 @@ if __name__ == "__main__":
                                     if middle_input == '':
                                         pass
                                     else:
-                                        setting_setter(td, middle_input)
+                                        setting_setter(td, int(middle_input))
 
                                     # from 0 to 150 degrees
                                     theta1 = random.random() * 0.83 * math.pi

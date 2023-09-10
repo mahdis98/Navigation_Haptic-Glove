@@ -24,6 +24,8 @@ class VectorHaptic(Activity):
         self.persist[SKELETON] = cf.new_skeleton(body_point_array)
         self.persist[TIMER] = cf.new_timer(0.3, -1.2, func=self.time_expire_func)
 
+        self.body_point_array = body_point_array
+
         stage_0 = {}
         # stage_0["target_1"] = cf.new_button(50, (255, 0, 0, 120), random.uniform(-0.7, 0.7)*PIXEL_SCALE+PIXEL_X_OFFSET, random.uniform(0.0, -0.8)*PIXEL_SCALE+PIXEL_Y_OFFSET, precision=50, func=self.target_1_func, target_pts=[15])
         random_target = random.choice(self.TARGETS)
@@ -98,12 +100,19 @@ class VectorHaptic(Activity):
 
         elif len(goal) > 0:
             self.index += 1
-            self.current_pos = np.array([self.persist[SKELETON].skeleton_array[KEY_POINT][0],
-                                         self.persist[SKELETON].skeleton_array[KEY_POINT][1]])  # Current Pos
+            if layout == "horizontal":
+                # self.current_pos = np.array([self.persist[SKELETON].skeleton_array[KEY_POINT][0],
+                #                              self.persist[SKELETON].skeleton_array[KEY_POINT][2]])  # Current Pos
+                self.current_pos = [self.body_point_array[0], self.body_point_array[2]]
+            else:
+                # self.current_pos = np.array([self.persist[SKELETON].skeleton_array[KEY_POINT][0],
+                #                              self.persist[SKELETON].skeleton_array[KEY_POINT][1]])  # Current Pos
+                self.current_pos = [self.body_point_array[0], self.body_point_array[1]]
             # print(self.persist[SKELETON].skeleton_array[4])
             # self.goal_position = np.array([0, self.stages[0]["target_1"].x_pos, self.stages[0]["target_1"].y_pos])
-            self.goal_position = np.array(
-                [goal[0] * PIXEL_SCALE + PIXEL_X_OFFSET, goal[1] * PIXEL_SCALE + PIXEL_X_OFFSET])
+            # self.goal_position = np.array(
+            #     [goal[0] * PIXEL_SCALE + PIXEL_X_OFFSET, goal[1] * PIXEL_SCALE + PIXEL_X_OFFSET])
+            self.goal_position = np.array([goal[0], goal[1]])
 
             if self.index > 300000:
                 print("stop")

@@ -45,6 +45,7 @@ usage = "usage: python3 body_track.py [(-r | --record) record_filename] [(-p | -
         "\tplayback_filename: SVO file name for playback. Must be .svo" \
         "\tkeypoints: keypoint values being recorded. By default not using this flag will record all points"
 
+
 def setting_setter(td_new, middle_input_new):
     if middle_input_new <= 7:
         td_new.metaphor = 'push'
@@ -228,8 +229,11 @@ if __name__ == "__main__":
     # print(layout)
 
     td = TwoDimensionGame(objects)
-    first_input = input("Please enter the first entry:")
-    setting_setter(td, int(first_input))
+    middle_input = input("Please enter the first entry:")
+    y_sub = 1
+    if int(middle_input) %2 == 1:
+        y_sub = 2
+    setting_setter(td, int(middle_input))
     try:
         td.start()
     except KeyboardInterrupt:
@@ -305,16 +309,22 @@ if __name__ == "__main__":
                 if initialized_vectors >= 5:
                     if len(objects.object_list) > 0:
                         # right_elbow = objects.object_list[0].keypoint[13]
-                        right_wrist = objects.object_list[0].keypoint[14]
-                        right_hand = objects.object_list[0].keypoint[15]
-                        if right_hand[1] == right_wrist[1]:
+                        # rotation
+                        if y_sub == 2:
+                            right_wrist = objects.object_list[0].keypoint[13]
+                            right_hand = objects.object_list[0].keypoint[14]
+                        else:
+                            right_wrist = objects.object_list[0].keypoint[14]
+                            right_hand = objects.object_list[0].keypoint[15]
+                        if right_hand[y_sub] == right_wrist[y_sub]:
                             alpha = math.pi / 2
                         else:
-                            alpha = math.atan((right_hand[0] - right_wrist[0]) / (right_hand[1] - right_wrist[1]))
+                            alpha = math.atan((right_hand[0] - right_wrist[0]) / (right_hand[y_sub] - right_wrist[y_sub]))
                             if alpha <= 0:
                                 alpha = -alpha
                             else:
                                 alpha = math.pi - alpha
+                        alpha = 0
                         # print("alpha: ", alpha * 180 / math.pi)
                         calculated_radius = np.linalg.norm(np.array(random_target) - np.array(center))
                         td.process(goal=random_target, alpha=alpha, radius=calculated_radius)
@@ -322,7 +332,7 @@ if __name__ == "__main__":
                         #             y=[(objects.object_list[0].keypoint[15][1] - center[1]) / distance_top], color='b',
                         #             s=5)
                         points_x.append((objects.object_list[0].keypoint[15][0] - center[0]) / distance_right)
-                        points_y.append((objects.object_list[0].keypoint[15][1] - center[1]) / distance_top)
+                        points_y.append((objects.object_list[0].keypoint[15][y_sub] - center[1]) / distance_top)
 
                 if objects.is_new:
                     # Count the number of objects detected
@@ -339,10 +349,11 @@ if __name__ == "__main__":
                                                              object.keypoint[keypoint][2]) + "\n")
 
                                 # setting target locations
+                                # calibration
                                 if initialized_vectors < 5:
                                     if sec_counter < 10 and time.time() - stop_time > 0.5:
                                         vector_dict[vectors[initialized_vectors]] += np.array(
-                                            object.keypoint[keypoint][0:2])
+                                            [object.keypoint[keypoint][0], object.keypoint[keypoint][y_sub]])
                                         # time.sleep(1)
                                         stop_time = time.time()
                                         sec_counter += 1
@@ -398,13 +409,15 @@ if __name__ == "__main__":
                                 ax, ay = random_target
 
                                 # 3D distance
-                                vect_diff = (vx - ax, vy - ay)
+                                if y_sub == 2:
+                                    vect_diff = (vx - ax, vz - ay)
+                                else:
+                                    vect_diff = (vx - ax, vy - ay)
                                 vect_magnitude = math.sqrt(vect_diff[0] ** 2 + vect_diff[1] ** 2)
-                                # print(random_target, object.keypoint[keypoint], vect_magnitude)
-
                                 # updating best vector
-                                # best_vector = (vect_magnitude, vector) if best_vector[0] > vect_magnitude else best_vector
-                                if initialized_vectors >= 4 and vect_magnitude < 0.05:
+                                calculated_radius = np.linalg.norm(np.array(random_target) - np.array(center))
+                                if initialized_vectors >= 4 and vect_magnitude < calculated_radius / 7:
+
                                     print("Target ", random_target, " reached!")
                                     file.write("Time to target: " + str(time.time() - target_timer) + " s\n")
                                     file.write("----\n")
@@ -416,19 +429,21 @@ if __name__ == "__main__":
                                     circ_center = plt.Circle((0, 0), 0.04, color='k', fill=True)
                                     plt.gca().add_artist(circ)
                                     plt.gca().add_artist(circ_center)
-                                    plt.title(username + "-" + td.guidance_approach + "-" + td.metaphor + "-" + td.intensity)
+                                    plt.title(
+                                        username + "-" + td.guidance_approach + "-" + td.metaphor + "-" + td.intensity)
                                     plt.xlim(left=-1.5, right=1.5)
                                     plt.ylim(bottom=-1.5, top=1.5)
                                     plt.plot(points_x, points_y, color='b')
 
-                                    plt.savefig("figures/" + username + "/" + td.guidance_approach + "-" + td.metaphor + "-" + td.intensity +
-                                                datetime.datetime.now().strftime(
-                                                    "%m") + "-" + datetime.datetime.now().strftime("%d") +
-                                                "-" + datetime.datetime.now().strftime(
-                                        "%y") + "_" + datetime.datetime.now().strftime("%H") +
-                                                "-" + datetime.datetime.now().strftime(
-                                        "%M") + "-" + datetime.datetime.now().strftime("%S")
-                                                + ".png")
+                                    plt.savefig(
+                                        "figures/" + username + "/" + td.guidance_approach + "-" + td.metaphor + "-" + td.intensity +
+                                        datetime.datetime.now().strftime(
+                                            "%m") + "-" + datetime.datetime.now().strftime("%d") +
+                                        "-" + datetime.datetime.now().strftime(
+                                            "%y") + "_" + datetime.datetime.now().strftime("%H") +
+                                        "-" + datetime.datetime.now().strftime(
+                                            "%M") + "-" + datetime.datetime.now().strftime("%S")
+                                        + ".png")
                                     plt.clf()
                                     points_x = []
                                     points_y = []

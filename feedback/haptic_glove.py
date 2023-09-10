@@ -118,7 +118,7 @@ class HapticGlove(FeedbackDevice):
                                                                   bounded=True)
                     # zone intensity
                     else:
-                        if D > .33 * radius:
+                        if D > .28 * radius:
                             mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2), MIN_INTENSITY,
                                                                   .59,
                                                                   bounded=True)
@@ -138,7 +138,7 @@ class HapticGlove(FeedbackDevice):
                                                           bounded=True)
                     # zone intensity
                     else:
-                        if D > .33 * radius:
+                        if D > .28 * radius:
                             mapped[i] = self.map_to_range(motor_distance[i], math.sqrt(2), 2.0, .59, MIN_INTENSITY,
                                                           bounded=True)
                         else:
@@ -166,7 +166,7 @@ class HapticGlove(FeedbackDevice):
                     mapped[selected_motor] = 1 - ((1 - MIN_INTENSITY) * D) / radius
             # zone intensity
             else:
-                if D > .33 * radius:
+                if D > .28 * radius:
                     mapped[selected_motor] = MIN_INTENSITY
                 else:
                     mapped[selected_motor] = 1

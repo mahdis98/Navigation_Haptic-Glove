@@ -168,20 +168,21 @@ class TwoDimensionGame():
         try:
             # self.body_point_array = np.array(json.loads(body))
             self.body_point_array = np.array(self.objects.object_list[0].keypoint)
+            self.activity.body_point_array = self.body_point_array[KEY_POINT]
             # print("body ", self.body_point_array[4][0:2])
         except:
             pass
 
         # If global coords were successfully found
-        if self.body_point_array is not None:
-            scaled_array = np.array(self.body_point_array)
-            scaled_array[:, 0] = scaled_array[:, 0] * PIXEL_SCALE + PIXEL_X_OFFSET
-            scaled_array[:, 1] = scaled_array[:, 1] * PIXEL_SCALE + PIXEL_Y_OFFSET
-            # scaled_array[:,2] = scaled_array[:,2]*PIXEL_SCALE+PIXEL_Z_OFFSET
-            self.persistant[SKELETON].set_pos(scaled_array)
-            # print("scaled body ", scaled_array)
-            # log data
-            self.log_data()
+        # if self.body_point_array is not None:
+        #     scaled_array = np.array(self.body_point_array)
+        #     scaled_array[:, 0] = scaled_array[:, 0] * PIXEL_SCALE + PIXEL_X_OFFSET
+        #     scaled_array[:, 1] = scaled_array[:, 1] * PIXEL_SCALE + PIXEL_Y_OFFSET
+        #     scaled_array[:, 2] = scaled_array[:, 2] * PIXEL_SCALE + PIXEL_Z_OFFSET
+        #     self.persistant[SKELETON].set_pos(scaled_array)
+        #     # print("scaled body ", scaled_array)
+        #     # log data
+        #     self.log_data()
 
         # Handles the activity's logic at the end of a frame
         self.activity.handle_frame(surface=self.gui.window, goal=goal, turn_off=turn_off, alpha=alpha, radius=radius,

@@ -1,7 +1,11 @@
+import json
+import os
 import subprocess
 import sys
 import numpy as np
 import argparse
+import pika
+import redis
 from activities.activity_factory import ActivityFactory
 from data_logging.hdf5_point_logger import Hdf5PointLogger
 from data_logging.logger import Logger
@@ -9,6 +13,7 @@ from data_logging.csv_point_logger import CSVPointLogger
 from data_logging.video_logger import VideoLogger
 from data_logging.zarr_point_logger import ZarrPointLogger
 from ui.pygame.pygame_ui import PyGameUI
+from ui.pyqtgraph.pyqtgraph_ui import PyQtGraph
 from constants.constants import *
 
 
@@ -24,7 +29,12 @@ class TwoDimensionGame():
     def __init__(self, objects, metaphor: str = "pull", guidance_approach: str = "two-tactor",
                  intensity: str = "linear", layout: str = "vertical"):
 
+        # Ensure correct arguments are passed
+        # self.arg_parse()
+
         self.objects = objects
+
+        # Array of the 33 mapped points
         self.body_point_array = np.zeros((self.NUM_LANDMARKS, 4))
         self.metaphor = metaphor
         self.guidance_approach = guidance_approach
@@ -36,6 +46,23 @@ class TwoDimensionGame():
 
         # # Init loggers
         self.loggers: list[Logger] = []
+        # if self.args.record_points:
+        #     self.loggers.append(CSVPointLogger(self.args.activity))
+        # if self.args.record_zarr:
+        #     self.loggers.append(ZarrPointLogger(self.args.activity))
+        # if self.args.record_hdf5:
+        #     self.loggers.append(Hdf5PointLogger(self.args.activity))
+
+        # if self.args.queue == "rabbitmq":
+        #     connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+        #     self.channel = connection.channel()
+        #     self.channel.queue_declare(queue=QUEUE_NAME, durable=False, auto_delete=True, arguments={'x-max-length' : 10})
+        #     self.channel.queue_purge(queue=QUEUE_NAME)
+        #     self.channel.basic_qos(prefetch_count=1)
+        # elif self.args.queue == "redis":
+        #     r = redis.Redis(host='localhost', port=6379, db=0)
+        #     self.channel = r.pubsub()
+        #     self.channel.subscribe(QUEUE_NAME)
 
     def start(self):
         """Initializes the game's user interface and starts processing data"""
@@ -70,7 +97,10 @@ class TwoDimensionGame():
         Registers functional arguments and passes those to
         the relevant activity."""
 
+        # if self.args.gui == "pygame":
         self.gui = PyGameUI()
+        # elif self.args.gui == "pyqtgraph":
+        #     self.gui = PyQtGraph(lambda: self.persistant[TIMER].tick())
 
         self.gui.new_gui()
 
@@ -103,26 +133,65 @@ class TwoDimensionGame():
         # i.e. the clock and the point skeleton components
         self.persistant = self.activity.get_persist()
 
+        # # Adds all components to the ui
+        # for stage in self.activity.get_stages():
+        #     for component in stage:
+        #         self.gui.add_component(stage[component])
+        #         stage[component].hide() # hides all components
+        #
+        # for component in self.persistant:
+        #     self.gui.add_component(self.persistant[component])
+
         # Call change activity initially to render components
-        # self.activity.change_stage()
+        self.activity.change_stage()
 
     def process(self, goal=None, turn_off=False, alpha=0, radius=0):
+        """
+        Infinitely loads skeletons from the queue until the program is
+        exited (esc). Updates the skeleton, handles any kind of activity
+        (i.e. button clicking), and calls the log function.
+        """
+        # while True:
+
+        # if self.objects.object_list:
+        #     print(self.objects.object_list[0].keypoint[4])
+        # if self.args.queue == "rabbitmq":
+        #     _, _, body = self.channel.basic_get(queue=QUEUE_NAME)
+        # elif self.args.queue == "redis":
+        #     data = self.channel.get_message()
+        #     if data is not None:
+        #         body = data["data"]
+
         # if body is not None:
         if goal is None:
             goal = []
         try:
-            # Updating the body_points_array based on the first object detected by the camera
+            # self.body_point_array = np.array(json.loads(body))
             self.body_point_array = np.array(self.objects.object_list[0].keypoint)
             self.activity.body_point_array = self.body_point_array[KEY_POINT]
+            # print("body ", self.body_point_array[4][0:2])
         except:
             pass
 
+        # If global coords were successfully found
+        # if self.body_point_array is not None:
+        #     scaled_array = np.array(self.body_point_array)
+        #     scaled_array[:, 0] = scaled_array[:, 0] * PIXEL_SCALE + PIXEL_X_OFFSET
+        #     scaled_array[:, 1] = scaled_array[:, 1] * PIXEL_SCALE + PIXEL_Y_OFFSET
+        #     scaled_array[:, 2] = scaled_array[:, 2] * PIXEL_SCALE + PIXEL_Z_OFFSET
+        #     self.persistant[SKELETON].set_pos(scaled_array)
+        #     # print("scaled body ", scaled_array)
+        #     # log data
+        #     self.log_data()
+
         # Handles the activity's logic at the end of a frame
         self.activity.handle_frame(surface=self.gui.window, goal=goal, turn_off=turn_off, alpha=alpha, radius=radius,
-                                   metaphor=self.metaphor, guidance_approach=self.guidance_approach,
-                                   intensity=self.intensity)
+                                   metaphor=self.metaphor,
+                                   guidance_approach=self.guidance_approach, intensity=self.intensity, layout=self.layout)
 
-        # self.persistant[TIMER].tick()
+        # self.gui.update()
+        # self.gui.clear()
+        self.persistant[TIMER].tick()
 
     def log_data(self):
         """Calls the log method on any instantiated loggers"""
@@ -132,3 +201,14 @@ class TwoDimensionGame():
                 logger.log(self.body_point_array)
             if isinstance(logger, VideoLogger):
                 logger.log(self.image)
+
+# if __name__ == "__main__":
+#     td = TwoDimensionGame()
+#     try:
+#         td.start()
+#     except KeyboardInterrupt:
+#         print('Interrupted')
+#     try:
+#         sys.exit(0)
+#     except SystemExit:
+#         os._exit(0)

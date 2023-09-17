@@ -19,7 +19,7 @@ class ActivityFactory:
     def __init__(self, type: str) -> None:
         self.type = type
     
-    def new_activity(self, body_point_array: np.array, ui: str, funcs: dict[str,list[FunctionType]], path: str, metaphor: str = "pull", guidance_approach: str = "two-tactor", intensity: str = "linear", layout: str = "vertical") -> Activity:
+    def new_activity(self, body_point_array: np.array, ui: str, funcs: dict[str,list[FunctionType]], path: str, metaphor: str = "pull", guidance_approach: str = "two_tactor", intensity: str = "linear", layout: str = "vertical") -> Activity:
         if self.type == "game":
             return Game(body_point_array, ui, funcs=funcs)
         elif self.type == "jumping_jacks":

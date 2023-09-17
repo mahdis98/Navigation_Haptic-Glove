@@ -143,7 +143,7 @@ if __name__ == "__main__":
     """
     Tracking Parameters
     https://www.stereolabs.com/docs/api/structsl_1_1PositionalTrackingParameters.html#a1c23e6c0df4bc26e7cc5421aea4d880e
-  
+
     The intent is for this camera to be static and ignoring IMU data
     Important configuration
     initial_world_transform: Position of the camera in the world frame when the camera is started. By default, it should be identity. 
@@ -231,7 +231,7 @@ if __name__ == "__main__":
     td = TwoDimensionGame(objects)
     middle_input = input("Please enter the first entry:")
     y_sub = 1
-    if int(middle_input) %2 == 1:
+    if int(middle_input) % 2 == 1:
         y_sub = 2
     setting_setter(td, int(middle_input))
     try:
@@ -308,6 +308,7 @@ if __name__ == "__main__":
                 # Passing the targets to the glove
                 if initialized_vectors >= 5:
                     if len(objects.object_list) > 0:
+                        # right_elbow = objects.object_list[0].keypoint[13]
                         # rotation
                         if y_sub == 2:
                             right_wrist = objects.object_list[0].keypoint[13]
@@ -324,10 +325,13 @@ if __name__ == "__main__":
                                 alpha = -alpha
                             else:
                                 alpha = math.pi - alpha
-                        # alpha = 0
+                        alpha = 0
                         # print("alpha: ", alpha * 180 / math.pi)
                         calculated_radius = np.linalg.norm(np.array(random_target) - np.array(center))
                         td.process(goal=random_target, alpha=alpha, radius=calculated_radius)
+                        # plt.scatter(x=[(objects.object_list[0].keypoint[15][0] - center[0]) / distance_right],
+                        #             y=[(objects.object_list[0].keypoint[15][1] - center[1]) / distance_top], color='b',
+                        #             s=5)
                         points_x.append((objects.object_list[0].keypoint[15][0] - center[0]) / distance_right)
                         points_y.append((objects.object_list[0].keypoint[15][y_sub] - center[1]) / distance_top)
 
@@ -351,6 +355,7 @@ if __name__ == "__main__":
                                     if sec_counter < 10 and time.time() - stop_time > 0.5:
                                         vector_dict[vectors[initialized_vectors]] += np.array(
                                             [object.keypoint[keypoint][0], object.keypoint[keypoint][y_sub]])
+                                        # time.sleep(1)
                                         stop_time = time.time()
                                         sec_counter += 1
                                         print(object.keypoint[keypoint])
@@ -365,6 +370,8 @@ if __name__ == "__main__":
 
                                     # shoulder_dict[vectors[initialized_vectors]] = np.array(object.keypoint[12][0:2])
                                     if initialized_vectors == 5:
+                                        # center = np.array([(shoulder_dict['A'][0] + shoulder_dict['B'][0]) / 2, (shoulder_dict['A'][1] + shoulder_dict['B'][1]) / 2])
+                                        # center = (shoulder_dict['A'] + shoulder_dict['B']) / 2
                                         center = vector_dict['D']
                                         distance_top = np.linalg.norm(vector_dict['A'] - center)
                                         print("distance top: ", distance_top)
@@ -373,11 +380,15 @@ if __name__ == "__main__":
                                         print("distance right: ", distance_right)
                                         file.write("Distance right: " + str(distance_right) + "\n")
                                         radius = min(distance_top, distance_right)
-                                        theta = random.random() * 0.83 * math.pi
+                                        theta = random.random() * 0.75 * math.pi
                                         input("For the next target, press enter")
+                                        # random_target = np.array(
+                                        #     [-radius * math.sin(theta), radius * math.cos(theta)]) + center
                                         random_target = np.array([-distance_right * math.sin(theta),
                                                                   distance_top * math.cos(theta)]) + center
                                         target_timer = time.time()
+                                        # print("radius: ", radius)
+                                        # file.write("Radius: " + str(radius) + "\n")
                                         print("center: ", center)
                                         file.write("Center: " + str(center) + "\n")
                                         print("theta: ", theta * 180 / math.pi)
@@ -391,14 +402,20 @@ if __name__ == "__main__":
 
                                     break
 
+                                # Find vector closest to for keypoint from list
+                                # best_vector = (math.inf, random_target)
+                                # for vector in vectors:
+                                # vector = random_target
                                 vx, vy, vz = object.keypoint[keypoint]
                                 ax, ay = random_target
+
                                 # 3D distance
                                 if y_sub == 2:
                                     vect_diff = (vx - ax, vz - ay)
                                 else:
                                     vect_diff = (vx - ax, vy - ay)
                                 vect_magnitude = math.sqrt(vect_diff[0] ** 2 + vect_diff[1] ** 2)
+                                # updating best vector
                                 calculated_radius = np.linalg.norm(np.array(random_target) - np.array(center))
                                 if initialized_vectors >= 4 and vect_magnitude < calculated_radius / 7:
 
@@ -442,9 +459,11 @@ if __name__ == "__main__":
 
                                     # from 0 to 150 degrees
                                     theta1 = random.random() * 0.83 * math.pi
-                                    while abs(theta1 - theta) < math.pi * 0.33:
+                                    while (abs(theta1 - theta) < math.pi * 0.33):
                                         theta1 = random.random() * 0.75 * math.pi
                                     theta = theta1
+                                    # random_target = np.array(
+                                    #     [-radius * math.sin(theta), radius * math.cos(theta)]) + center
                                     random_target = np.array([-distance_right * math.sin(theta),
                                                               distance_top * math.cos(theta)]) + center
                                     target_timer = time.time()

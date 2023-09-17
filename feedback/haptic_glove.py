@@ -9,13 +9,12 @@ from feedback.feedback_device import FeedbackDevice
 class HapticGlove(FeedbackDevice):
     MOTORS = np.array(
         [np.array([0, 1]), np.array([0, -1]), np.array([-1, 0]), np.array([1, 0])])  # array of motor positions
-    # MOTORS = np.array([np.array([0,0,1]), np.array([0,0,-1]), np.array([0,-1,0]), np.array([0,1,0])]) #array of motor positions
 
     TIMEOUT = 10  # seconds
     MINIMUM_INTENSITY_MESSAGE = "/150/150/150/150"
 
     def __init__(self, tcp_ip: str, tcp_port: int, metaphor: str = "pull", guidance_approach: str = "two-tactor",
-                 intensity: str = "linear", layout: str = "vertical") -> None:
+                 intensity: str = "linear") -> None:
         super().__init__()
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.settimeout(self.TIMEOUT)
@@ -38,7 +37,7 @@ class HapticGlove(FeedbackDevice):
 
     def send_pull_feedback(self, current_pt: np.array, goal_pt: np.array, alpha=0, radius=0, metaphor: str = "pull",
                            guidance_approach: str = "two-tactor",
-                           intensity: str = "linear", layout: str = "vertical"):
+                           intensity: str = "linear"):
         self.MOTORS = np.array(
             [np.array([-math.sin(alpha), math.cos(alpha)]), np.array([math.sin(alpha), -math.cos(alpha)]),
              np.array([-math.cos(alpha), -math.sin(alpha)]),
@@ -106,12 +105,10 @@ class HapticGlove(FeedbackDevice):
             # two tactor vector
             if self.guidance_approach == "two_tactor":
                 if self.metaphor == "pull":
-                    # mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2), 1, .59, bounded=True)
                     if self.intensity == "linear":
                         if D > radius:
                             mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2), MIN_INTENSITY,
-                                                                  .59,
-                                                                  bounded=True)
+                                                                  .59, bounded=True)
                         else:
                             mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2),
                                                                   1 - ((1 - MIN_INTENSITY) * D) / radius, .59,
@@ -120,30 +117,26 @@ class HapticGlove(FeedbackDevice):
                     else:
                         if D > .28 * radius:
                             mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2), MIN_INTENSITY,
-                                                                  .59,
-                                                                  bounded=True)
+                                                                  .59, bounded=True)
                         else:
                             mapped[i] = self.reverse_map_to_range(motor_distance[i], 0.0, math.sqrt(2), 1, .59,
                                                                   bounded=True)
                 # push
                 else:
-                    # mapped[i] = self.map_to_range(motor_distance[i], math.sqrt(2), 2.0, .59, 1, bounded=True)
                     if self.intensity == "linear":
                         if D > radius:
                             mapped[i] = self.map_to_range(motor_distance[i], math.sqrt(2), 2.0, .59, MIN_INTENSITY,
                                                           bounded=True)
                         else:
                             mapped[i] = self.map_to_range(motor_distance[i], math.sqrt(2), 2.0, .59,
-                                                          1 - ((1 - MIN_INTENSITY) * D) / radius,
-                                                          bounded=True)
+                                                          1 - ((1 - MIN_INTENSITY) * D) / radius, bounded=True)
                     # zone intensity
                     else:
                         if D > .28 * radius:
                             mapped[i] = self.map_to_range(motor_distance[i], math.sqrt(2), 2.0, .59, MIN_INTENSITY,
                                                           bounded=True)
                         else:
-                            mapped[i] = self.map_to_range(motor_distance[i], math.sqrt(2), 2.0, .59, 1,
-                                                          bounded=True)
+                            mapped[i] = self.map_to_range(motor_distance[i], math.sqrt(2), 2.0, .59, 1, bounded=True)
 
             else:
                 if motor_distance[i] < min_distance:
@@ -171,13 +164,8 @@ class HapticGlove(FeedbackDevice):
                 else:
                     mapped[selected_motor] = 1
 
-        # if pull, then make mapped[min in worst axis] =1
-        # else, then make mapped[max in worst axis]=1
-
-        # mapped[min_distance_motor] = 1
-
         # buzz all motors when target reached
-        if goal_pos[0] > 1000:
+        if goal_pos[0] == 1000:
             mapped = [1, 1, 1, 1]
 
         # print(mapped)
@@ -185,7 +173,7 @@ class HapticGlove(FeedbackDevice):
         mapped = np.array(mapped)
 
         # print(f'Motor distances : {motor_distance}')
-        # print(f'Motor intensity proportions: {mapped}')
+        print(f'Motor intensity proportions: {mapped}')
 
         intensity = np.array(I * mapped).astype(int)
         # print(f'Motor intensity array: {intensity}')

@@ -251,6 +251,8 @@ if __name__ == "__main__":
     stop_time = time.time()
     check_store = False
     target_timer = 0
+    right_alpha = math.pi
+    top_alpha = 0
     points_x = []
     points_y = []
     shoulder_dict = {}
@@ -378,23 +380,35 @@ if __name__ == "__main__":
                                         center = vector_dict['D']
                                         distance_top = np.linalg.norm(vector_dict['A'] - center)
                                         print("distance top: ", distance_top)
+                                        top_alpha = -math.atan(
+                                            (vector_dict['A'][0] - center[0]) / (vector_dict['A'][1] - center[1]))
+                                        print("alpha top:", top_alpha * 180 / math.pi)
+                                        right_alpha = math.atan(
+                                            (vector_dict['B'][0] - center[0]) / (vector_dict['B'][1] - center[1]))
+                                        if right_alpha <= 0:
+                                            right_alpha = -right_alpha
+                                        else:
+                                            right_alpha = math.pi - right_alpha
+                                        print("alpha right:", right_alpha * 180 / math.pi)
                                         file.write("Distance top: " + str(distance_top) + "\n")
                                         distance_right = np.linalg.norm(vector_dict['B'] - center)
                                         print("distance right: ", distance_right)
                                         file.write("Distance right: " + str(distance_right) + "\n")
                                         radius = min(distance_top, distance_right)
                                         theta = random.random() * 0.75 * math.pi
+                                        theta_scaled = 2 * theta * (right_alpha - top_alpha) / math.pi + top_alpha
                                         input("For the next target, press enter")
                                         # random_target = np.array(
                                         #     [-radius * math.sin(theta), radius * math.cos(theta)]) + center
-                                        random_target = np.array([-distance_right * math.sin(theta),
-                                                                  distance_top * math.cos(theta)]) + center
+                                        random_target = np.array([-distance_right * math.sin(theta_scaled),
+                                                                  distance_top * math.cos(theta_scaled)]) + center
                                         target_timer = time.time()
                                         # print("radius: ", radius)
                                         # file.write("Radius: " + str(radius) + "\n")
                                         print("center: ", center)
                                         file.write("Center: " + str(center) + "\n")
                                         print("theta: ", theta * 180 / math.pi)
+                                        print("theta scaled: ", theta_scaled * 180 / math.pi)
                                         print("random target: ", random_target)
                                         file.write("metaphor: " + str(td.metaphor) + "\n")
                                         file.write("guidance_approach: " + str(td.guidance_approach) + "\n")
@@ -466,12 +480,15 @@ if __name__ == "__main__":
                                     while (abs(theta1 - theta) < math.pi * 0.33):
                                         theta1 = random.random() * 0.83 * math.pi
                                     theta = theta1
+
+                                    theta_scaled = 2 * theta * (right_alpha - top_alpha) / math.pi + top_alpha
                                     # random_target = np.array(
                                     #     [-radius * math.sin(theta), radius * math.cos(theta)]) + center
-                                    random_target = np.array([-distance_right * math.sin(theta),
-                                                              distance_top * math.cos(theta)]) + center
+                                    random_target = np.array([-distance_right * math.sin(theta_scaled),
+                                                              distance_top * math.cos(theta_scaled)]) + center
                                     target_timer = time.time()
                                     print("theta: ", theta * 180 / math.pi)
+                                    print("scaled theta:", theta_scaled * 180 / math.pi)
                                     print("random target: ", random_target)
                                     file.write("metaphor: " + str(td.metaphor) + "\n")
                                     file.write("guidance_approach: " + str(td.guidance_approach) + "\n")

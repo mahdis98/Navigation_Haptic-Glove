@@ -254,6 +254,7 @@ if __name__ == "__main__":
     points_x = []
     points_y = []
     shoulder_dict = {}
+    data_points = []
     vector_dict = {'A': (0, 0), 'B': (0, 0), 'C': (0, 0),
                    'D': (0, 0), 'X': (0, 0)}
     try:
@@ -311,27 +312,23 @@ if __name__ == "__main__":
                         # right_elbow = objects.object_list[0].keypoint[13]
                         # rotation
                         if y_sub == 2:
-                            right_wrist = objects.object_list[0].keypoint[13]
-                            right_hand = objects.object_list[0].keypoint[14]
+                            alpha = 0
                         else:
                             right_wrist = objects.object_list[0].keypoint[14]
                             right_hand = objects.object_list[0].keypoint[15]
-                        if right_hand[y_sub] == right_wrist[y_sub]:
-                            alpha = math.pi / 2
-                        else:
-                            alpha = math.atan(
-                                (right_hand[0] - right_wrist[0]) / (right_hand[y_sub] - right_wrist[y_sub]))
-                            if alpha <= 0:
-                                alpha = -alpha
+                            if right_hand[y_sub] == right_wrist[y_sub]:
+                                alpha = math.pi / 2
                             else:
-                                alpha = math.pi - alpha
-                        alpha = 0
-                        # print("alpha: ", alpha * 180 / math.pi)
+                                alpha = math.atan(
+                                    (right_hand[0] - right_wrist[0]) / (right_hand[y_sub] - right_wrist[y_sub]))
+                                if alpha <= 0:
+                                    alpha = -alpha
+                                else:
+                                    alpha = math.pi - alpha
+                        #print("alpha: ", alpha * 180 / math.pi)
                         calculated_radius = np.linalg.norm(np.array(random_target) - np.array(center))
                         td.process(goal=random_target, alpha=alpha, radius=calculated_radius)
-                        # plt.scatter(x=[(objects.object_list[0].keypoint[15][0] - center[0]) / distance_right],
-                        #             y=[(objects.object_list[0].keypoint[15][1] - center[1]) / distance_top], color='b',
-                        #             s=5)
+                        #time.sleep(0.1)
                         points_x.append((objects.object_list[0].keypoint[15][0] - center[0]) / distance_right)
                         points_y.append((objects.object_list[0].keypoint[15][y_sub] - center[1]) / distance_top)
 
@@ -353,6 +350,8 @@ if __name__ == "__main__":
                                 # calibration
                                 if initialized_vectors < 5:
                                     if sec_counter < 10 and time.time() - stop_time > 0.5:
+                                        data_points.append(np.array(
+                                            [object.keypoint[keypoint][0], object.keypoint[keypoint][y_sub]]))
                                         vector_dict[vectors[initialized_vectors]] += np.array(
                                             [object.keypoint[keypoint][0], object.keypoint[keypoint][y_sub]])
                                         # time.sleep(1)
@@ -360,8 +359,12 @@ if __name__ == "__main__":
                                         sec_counter += 1
                                         print(object.keypoint[keypoint])
                                     elif sec_counter == 10:
-                                        vector_dict[vectors[initialized_vectors]] = vector_dict[vectors[
-                                            initialized_vectors]] / 10
+                                        # vector_dict[vectors[initialized_vectors]] = vector_dict[vectors[
+                                        #     initialized_vectors]] / 10
+                                        vector_dict[vectors[initialized_vectors]] = np.median(np.array(data_points),
+                                                                                              axis=0)
+                                        data_points = []
+                                        print(vector_dict[vectors[initialized_vectors]])
                                         sec_counter = 0
                                         initialized_vectors += 1
                                         check_store = False
@@ -403,6 +406,7 @@ if __name__ == "__main__":
                                     break
 
                                 # Find vector closest to for keypoint from list
+
                                 # best_vector = (math.inf, random_target)
                                 # for vector in vectors:
                                 # vector = random_target
@@ -417,7 +421,7 @@ if __name__ == "__main__":
                                 vect_magnitude = math.sqrt(vect_diff[0] ** 2 + vect_diff[1] ** 2)
                                 # updating best vector
                                 calculated_radius = np.linalg.norm(np.array(random_target) - np.array(center))
-                                if initialized_vectors >= 4 and vect_magnitude < calculated_radius / 7:
+                                if initialized_vectors >= 4 and vect_magnitude < calculated_radius / 10:
 
                                     print("Target ", random_target, " reached!")
                                     file.write("Time to target: " + str(time.time() - target_timer) + " s\n")
@@ -460,7 +464,7 @@ if __name__ == "__main__":
                                     # from 0 to 150 degrees
                                     theta1 = random.random() * 0.83 * math.pi
                                     while (abs(theta1 - theta) < math.pi * 0.33):
-                                        theta1 = random.random() * 0.75 * math.pi
+                                        theta1 = random.random() * 0.83 * math.pi
                                     theta = theta1
                                     # random_target = np.array(
                                     #     [-radius * math.sin(theta), radius * math.cos(theta)]) + center

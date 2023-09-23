@@ -58,7 +58,7 @@ class HapticGlove(FeedbackDevice):
             self.socket.send(f'{self.MINIMUM_INTENSITY_MESSAGE}\n'.encode('ascii'))
 
     def make_message(self, vect) -> str:
-        return f'/{vect[1]}/{vect[0]}/{vect[2]}/{vect[3]}'
+        return f'/{vect[0]}/{vect[1]}/{vect[2]}/{vect[3]}'
 
     def find_distance(self, vector1, vector2, normalized=False):
         if normalized:
@@ -93,8 +93,9 @@ class HapticGlove(FeedbackDevice):
         D = np.linalg.norm(U)
         # print(f'Distance from goal: {D}')
 
-        I = self.map_to_range(D, 0, 0.6, 150, 255, bounded=True)
+        # I = self.map_to_range(D, 0, 0.6, 150, 255, bounded=True)
         # print(f'Distance adjusted to range: {I}')
+        I = 255
 
         motor_distance = [0.0, 0.0, 0.0, 0.0]
         mapped = [0.59, 0.59, 0.59, 0.59]
@@ -185,7 +186,8 @@ class HapticGlove(FeedbackDevice):
         mapped = np.array(mapped)
 
         # print(f'Motor distances : {motor_distance}')
-        print(f'Motor intensity proportions: {mapped}')
+        mapped_rounded = [round(m, 2) for m in mapped]
+        # print(f'Motor intensity proportions: {mapped_rounded}')
 
         intensity = np.array(I * mapped).astype(int)
         # print(f'Motor intensity array: {intensity}')

@@ -331,7 +331,7 @@ if __name__ == "__main__":
                         calculated_radius = np.linalg.norm(np.array(random_target) - np.array(center))
                         td.process(goal=random_target, alpha=alpha, radius=calculated_radius)
                         #time.sleep(0.1)
-                        points_x.append((objects.object_list[0].keypoint[15][0] - center[0]) / distance_right)
+                        points_x.append(-1*((objects.object_list[0].keypoint[15][0] - center[0]) / distance_right))
                         points_y.append((objects.object_list[0].keypoint[15][y_sub] - center[1]) / distance_top)
 
                 if objects.is_new:
@@ -442,7 +442,7 @@ if __name__ == "__main__":
                                     file.write("----\n")
                                     file.write("----\n")
 
-                                    circ = plt.Circle(((random_target[0] - center[0]) / distance_right,
+                                    circ = plt.Circle((-1*((random_target[0] - center[0])) / distance_right,
                                                        (random_target[1] - center[1]) / distance_top), 0.04,
                                                       color='r', fill=True, alpha=0.5)
                                     circ_center = plt.Circle((0, 0), 0.04, color='k', fill=True)

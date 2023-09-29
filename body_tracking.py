@@ -324,10 +324,16 @@ if __name__ == "__main__":
                                 alpha = math.atan(
                                     (right_hand[0] - right_wrist[0]) / (right_hand[y_sub] - right_wrist[y_sub]))
                                 if alpha <= 0:
-                                    alpha = -alpha
+                                    if right_hand[0] <= right_wrist[0]:
+                                        alpha = -alpha
+                                    else:
+                                        alpha = math.pi - alpha
                                 else:
-                                    alpha = math.pi - alpha
-                        #print("alpha: ", alpha * 180 / math.pi)
+                                    if right_hand[0] <= right_wrist[0]:
+                                        alpha = math.pi - alpha
+                                    else:
+                                        alpha = -alpha
+                        print("alpha: ", alpha * 180 / math.pi)
                         calculated_radius = np.linalg.norm(np.array(random_target) - np.array(center))
                         td.process(goal=random_target, alpha=alpha, radius=calculated_radius)
                         #time.sleep(0.1)

@@ -333,7 +333,7 @@ if __name__ == "__main__":
                                         alpha = math.pi - alpha
                                     else:
                                         alpha = -alpha
-                        print("alpha: ", alpha * 180 / math.pi)
+                        # print("alpha: ", alpha * 180 / math.pi)
                         calculated_radius = np.linalg.norm(np.array(random_target) - np.array(center))
                         td.process(goal=random_target, alpha=alpha, radius=calculated_radius)
                         #time.sleep(0.1)
@@ -395,11 +395,13 @@ if __name__ == "__main__":
                                             right_alpha = -right_alpha
                                         else:
                                             right_alpha = math.pi - right_alpha
+                                        file.write("A coordinates: " + str(vector_dict['A'][0]) + " " + str(vector_dict['A'][1]) + "\n")
+                                        file.write("B coordinates: " + str(vector_dict['B'][0]) + " " + str(vector_dict['B'][1]) + "\n")
                                         print("alpha right:", right_alpha * 180 / math.pi)
-                                        file.write("Distance top: " + str(distance_top) + "\n")
+                                        # file.write("Distance top: " + str(distance_top) + "\n")
                                         distance_right = np.linalg.norm(vector_dict['B'] - center)
                                         print("distance right: ", distance_right)
-                                        file.write("Distance right: " + str(distance_right) + "\n")
+                                        # file.write("Distance right: " + str(distance_right) + "\n")
                                         radius = min(distance_top, distance_right)
                                         theta = random.random() * 0.75 * math.pi
                                         theta_scaled = 2 * theta * (right_alpha - top_alpha) / math.pi + top_alpha
@@ -412,7 +414,7 @@ if __name__ == "__main__":
                                         # print("radius: ", radius)
                                         # file.write("Radius: " + str(radius) + "\n")
                                         print("center: ", center)
-                                        file.write("Center: " + str(center) + "\n")
+                                        file.write("Center: " + str(center[0]) + " " + str(center[1]) + "\n")
                                         print("theta: ", theta * 180 / math.pi)
                                         print("theta scaled: ", theta_scaled * 180 / math.pi)
                                         print("random target: ", random_target)

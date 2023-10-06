@@ -38,6 +38,7 @@ import cv_viewer.tracking_viewer as cv_viewer
 import numpy as np
 import argparse
 
+from data_processor import file_processor
 from start_ui import TwoDimensionGame
 
 usage = "usage: python3 body_track.py [(-r | --record) record_filename] [(-p | --playback) playback_filename] [-s | --skeleton keypoints]\n" \
@@ -268,6 +269,7 @@ if __name__ == "__main__":
     except OSError as error:
         pass
     name_file = ("Outputs/" + username + "/" + username + "_" +
+                 td.layout + "_" +
                  datetime.datetime.now().strftime("%m") + "-" + datetime.datetime.now().strftime("%d") +
                  "-" + datetime.datetime.now().strftime("%y") + "_" + datetime.datetime.now().strftime("%H") +
                  "-" + datetime.datetime.now().strftime("%M") + "-" + datetime.datetime.now().strftime("%S")
@@ -336,8 +338,8 @@ if __name__ == "__main__":
                         # print("alpha: ", alpha * 180 / math.pi)
                         calculated_radius = np.linalg.norm(np.array(random_target) - np.array(center))
                         td.process(goal=random_target, alpha=alpha, radius=calculated_radius)
-                        #time.sleep(0.1)
-                        points_x.append(-1*((objects.object_list[0].keypoint[15][0] - center[0]) / distance_right))
+                        # time.sleep(0.1)
+                        points_x.append(-1 * ((objects.object_list[0].keypoint[15][0] - center[0]) / distance_right))
                         points_y.append((objects.object_list[0].keypoint[15][y_sub] - center[1]) / distance_top)
 
                 if objects.is_new:
@@ -395,8 +397,10 @@ if __name__ == "__main__":
                                             right_alpha = -right_alpha
                                         else:
                                             right_alpha = math.pi - right_alpha
-                                        file.write("A coordinates: " + str(vector_dict['A'][0]) + " " + str(vector_dict['A'][1]) + "\n")
-                                        file.write("B coordinates: " + str(vector_dict['B'][0]) + " " + str(vector_dict['B'][1]) + "\n")
+                                        file.write("A coordinates: " + str(vector_dict['A'][0]) + " " + str(
+                                            vector_dict['A'][1]) + "\n")
+                                        file.write("B coordinates: " + str(vector_dict['B'][0]) + " " + str(
+                                            vector_dict['B'][1]) + "\n")
                                         print("alpha right:", right_alpha * 180 / math.pi)
                                         # file.write("Distance top: " + str(distance_top) + "\n")
                                         distance_right = np.linalg.norm(vector_dict['B'] - center)
@@ -450,10 +454,10 @@ if __name__ == "__main__":
                                     file.write("----\n")
                                     file.write("----\n")
 
-                                    circ = plt.Circle((-1*((random_target[0] - center[0])) / distance_right,
-                                                       (random_target[1] - center[1]) / distance_top), 0.04,
-                                                      color='r', fill=True, alpha=0.5)
-                                    circ_center = plt.Circle((0, 0), 0.04, color='k', fill=True)
+                                    circ = plt.Circle((-1 * ((random_target[0] - center[0])) / distance_right,
+                                                       (random_target[1] - center[1]) / distance_top), 0.06,
+                                                      color='r', fill=True, alpha=0.7)
+                                    circ_center = plt.Circle((0, 0), 0.06, color='k', fill=True)
                                     plt.gca().add_artist(circ)
                                     plt.gca().add_artist(circ_center)
                                     plt.title(
@@ -463,7 +467,8 @@ if __name__ == "__main__":
                                     plt.plot(points_x, points_y, color='b')
 
                                     plt.savefig(
-                                        "figures/" + username + "/" + td.guidance_approach + "-" + td.metaphor + "-" + td.intensity +
+                                        "figures/" + username + "/" + td.layout + "-" + td.guidance_approach + "-" +
+                                        td.metaphor + "-" + td.intensity +
                                         datetime.datetime.now().strftime(
                                             "%m") + "-" + datetime.datetime.now().strftime("%d") +
                                         "-" + datetime.datetime.now().strftime(
@@ -480,6 +485,9 @@ if __name__ == "__main__":
                                     middle_input = input("For the next target, press enter")
                                     if middle_input == '':
                                         pass
+                                    # elif middle_input == "-1":
+                                    #     file_processor(name_file)
+                                    #     sys.exit()
                                     else:
                                         setting_setter(td, int(middle_input))
 

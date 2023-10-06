@@ -36,7 +36,7 @@ def file_processor(filename):
                 A_coordinates = [float(arr[2]), float(arr[3])]
             elif arr[0] == 'B':
                 B_coordinates = [float(arr[2]), float(arr[3])]
-            elif arr[0] == 'Done':
+            elif arr[0] == '----':
                 total_distance = distance_calculator(coordinates, abs(center[1] - A_coordinates[1]), abs(center[0] - B_coordinates[0]))
                 print(total_distance)
                 coordinates = []
@@ -63,4 +63,4 @@ def distance_calculator(coordinates, distance_top, distance_right):
     return total_distance
 
 
-file_processor("./Outputs/testf/testf_09-29-23_18-11-41.txt")
+# file_processor("./Outputs/Mahdis/Mahdis_vertical_10-06-23_11-19-48.txt")

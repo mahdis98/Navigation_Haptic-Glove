@@ -93,6 +93,8 @@ class HapticGlove(FeedbackDevice):
         D = np.linalg.norm(U)
         # print(f'Distance from goal: {D}')
 
+        # print("Radius: ", radius)
+
         # I = self.map_to_range(D, 0, 0.6, 150, 255, bounded=True)
         # print(f'Distance adjusted to range: {I}')
         I = 255

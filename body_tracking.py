@@ -19,6 +19,7 @@
 ########################################################################
 
 """
+
    This sample shows how to detect a human objects and draw their
    modelised skeleton in an OpenGL window
 """

@@ -383,6 +383,7 @@ if __name__ == "__main__":
                                     # setting it to the average value of those 5 seconds
 
                                     # shoulder_dict[vectors[initialized_vectors]] = np.array(object.keypoint[12][0:2])
+                                    # Target generation begins here
                                     if initialized_vectors == 5:
                                         # center = np.array([(shoulder_dict['A'][0] + shoulder_dict['B'][0]) / 2, (shoulder_dict['A'][1] + shoulder_dict['B'][1]) / 2])
                                         # center = (shoulder_dict['A'] + shoulder_dict['B']) / 2
@@ -392,6 +393,7 @@ if __name__ == "__main__":
                                         top_alpha = -math.atan(
                                             (vector_dict['A'][0] - center[0]) / (vector_dict['A'][1] - center[1]))
                                         print("alpha top:", top_alpha * 180 / math.pi)
+                                        # right alpha = beta (figure)
                                         right_alpha = math.atan(
                                             (vector_dict['B'][0] - center[0]) / (vector_dict['B'][1] - center[1]))
                                         if right_alpha <= 0:
@@ -494,7 +496,8 @@ if __name__ == "__main__":
 
                                     # from 0 to 150 degrees
                                     theta1 = random.random() * 0.83 * math.pi
-                                    while (abs(theta1 - theta) < math.pi * 0.33):
+                                    # checking if two consecutive targets are different by at least 60 degrees
+                                    while abs(theta1 - theta) < math.pi * 0.33:
                                         theta1 = random.random() * 0.83 * math.pi
                                     theta = theta1
 
